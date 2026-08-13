@@ -5,6 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>歲神 (Sui Shen: Folk Horror Adventure)</title>
+    <link rel="icon" type="image/png" href="https://file.garden/aWe99vhwaGcNwkok/%E7%A0%B4%E9%A0%AD/%E5%A5%A7%E6%8B%89.png">
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@600;800;900&family=Noto+Serif+TC:wght@400;600;700;900&family=Share+Tech+Mono&display=swap');
 
@@ -2794,6 +2795,13 @@ const epilogueScript = [
         }
 
         function startGame(type = 'ch1') {
+            // Request fullscreen on user interaction
+            if (!document.fullscreenElement && document.documentElement.requestFullscreen) {
+                document.documentElement.requestFullscreen().catch(err => {
+                    console.log(`Error attempting to enable fullscreen: ${err.message}`);
+                });
+            }
+
             currentChapterType = type;
             state.playerName = "林恩";
             document.getElementById('homePage').style.display = 'none';
