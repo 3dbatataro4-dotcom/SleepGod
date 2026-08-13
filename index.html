@@ -1,0 +1,2945 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>歲神 (Sui Shen: Folk Horror Adventure)</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@600;800;900&family=Noto+Serif+TC:wght@400;600;700;900&family=Share+Tech+Mono&display=swap');
+
+        :root {
+            --bg-dark: #050304;
+            --panel-bg: rgba(14, 8, 10, 0.94);
+            --border-color: #4a151b;
+            --accent-red: #c0392b;
+            --accent-crimson: #e74c3c;
+            --accent-gold: #d4af37;
+            --accent-purple: #8e44ad;
+            --accent-jade: #16a085;
+            --text-main: #eaeaea;
+            --text-sub: #a89a9c;
+
+            /* 角色色調 */
+            --peter-color: #e74c3c;
+            /* 裴得少爺 / 魏天縱 */
+            --lanlan-color: #16a085;
+            /* 藍嵐保鑣 */
+            --jornona-color: #ff7675;
+            /* 喬若楠 */
+            --melas-color: #8e44ad;
+            /* 苗司大巫 */
+            --lynn-color: #3498db;
+            /* 林恩 */
+            --suche-color: #f39c12;
+            /* 蘇澈 */
+            --luoan-color: #2ecc71;
+            /* 駱安 */
+            --student-color: #9b59b6;
+            /* 學生/李客 */
+            --hecui-color: #27ae60;
+            /* 何翠 */
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Noto Serif TC', serif;
+            user-select: none;
+            -webkit-user-select: none;
+        }
+
+        body {
+            background-color: var(--bg-dark);
+            color: var(--text-main);
+            min-height: 100vh;
+            overflow-x: hidden;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            position: relative;
+        }
+
+        /* 畫面劇烈震動特效 */
+        .screenshake {
+            animation: shake 0.4s cubic-bezier(.36, .07, .19, .97) both;
+        }
+
+        @keyframes shake {
+
+            10%,
+            90% {
+                transform: translate3d(-2px, 0, 0);
+            }
+
+            20%,
+            80% {
+                transform: translate3d(4px, 0, 0);
+            }
+
+            30%,
+            50%,
+            70% {
+                transform: translate3d(-6px, 0, 0);
+            }
+
+            40%,
+            60% {
+                transform: translate3d(6px, 0, 0);
+            }
+        }
+
+        /* 背景與紅線血霧動畫 */
+        .bg-animation {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            z-index: -2;
+            background: radial-gradient(circle at 50% 50%, #2c0b0e 0%, #050304 100%);
+            transition: background 1.5s ease;
+        }
+
+        .fog {
+            position: absolute;
+            width: 200%;
+            height: 100%;
+            background: url('https://raw.githubusercontent.com/danielstuart14/CSS_FOG_ANIMATION/master/fog1.png') repeat-x;
+            background-size: cover;
+            animation: fog 60s linear infinite;
+            opacity: 0.25;
+            filter: sepia(1) saturate(5) hue-rotate(-50deg);
+            z-index: -1;
+            pointer-events: none;
+        }
+
+        @keyframes fog {
+            0% {
+                transform: translate3d(0, 0, 0);
+            }
+
+            100% {
+                transform: translate3d(-50%, 0, 0);
+            }
+        }
+
+        .crt-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background: linear-gradient(rgba(18, 5, 5, 0) 50%, rgba(0, 0, 0, 0.4) 50%);
+            background-size: 100% 4px;
+            z-index: 99;
+            pointer-events: none;
+            opacity: 0.4;
+        }
+
+        /* 音樂控制器 */
+        .audio-controls {
+            position: fixed;
+            top: 15px;
+            left: 15px;
+            z-index: 1000;
+            background: rgba(20, 8, 10, 0.9);
+            border: 1px solid var(--accent-red);
+            border-radius: 25px;
+            padding: 6px 14px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            box-shadow: 0 0 15px rgba(192, 57, 43, 0.4);
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .audio-controls:hover {
+            box-shadow: 0 0 25px rgba(231, 76, 60, 0.7);
+            transform: scale(1.05);
+        }
+
+        body {
+            background-color: #000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            margin: 0;
+            overflow: hidden;
+        }
+
+        .container {
+            width: 1200px;
+            height: 800px;
+            position: relative;
+            z-index: 10;
+            transform-origin: center center;
+            background: rgba(10, 4, 6, 0.85);
+        }
+
+        
+
+        .dialogue-bubble {
+            display: flex;
+            flex-direction: column;
+            background: rgba(15, 12, 5, 0.9) !important;
+            border-radius: 4px;
+            padding: 12px;
+            flex: 1;
+            position: relative;
+            border-left: 3px solid var(--accent-gold) !important;
+            box-shadow: inset 0 0 10px rgba(212, 175, 55, 0.1) !important;
+            width: 100%;
+        }
+
+        .home-page {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 80vh;
+            text-align: center;
+            background: rgba(10, 4, 6, 0.85);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            box-shadow: 0 0 50px rgba(0, 0, 0, 0.9);
+            padding: 20px;
+        }
+
+        .game-title {
+            font-family: 'Cinzel', 'Noto Serif TC', serif;
+            font-size: 3.2rem;
+            color: #f5e6ca;
+            text-shadow: 0 0 20px rgba(192, 57, 43, 0.8), 0 0 40px rgba(0, 0, 0, 0.9);
+            margin-bottom: 8px;
+            letter-spacing: 6px;
+        }
+
+        .game-subtitle {
+            font-size: 1.1rem;
+            color: var(--accent-gold);
+            margin-bottom: 30px;
+            letter-spacing: 3px;
+        }
+
+        .start-btn {
+            padding: 12px 24px;
+            font-size: 1.05rem;
+            background: rgba(192, 57, 43, 0.2);
+            border: 1px solid var(--accent-red);
+            color: #fff;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            letter-spacing: 2px;
+            box-shadow: 0 0 15px rgba(192, 57, 43, 0.3);
+            width: 100%;
+        }
+
+        .start-btn:hover {
+            background: var(--accent-red);
+            box-shadow: 0 0 25px rgba(231, 76, 60, 0.8);
+            transform: translateY(-2px);
+        }
+
+        .chapter-card-gothic {
+            background: rgba(20, 8, 12, 0.85);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 14px 18px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .chapter-card-gothic:hover {
+            border-color: var(--accent-gold);
+            background: rgba(192, 57, 43, 0.15);
+            transform: translateY(-2px);
+            box-shadow: 0 0 20px rgba(212, 175, 55, 0.3);
+        }
+
+        .chapter-card-title {
+            font-size: 1.1rem;
+            font-weight: bold;
+            color: var(--accent-gold);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .chapter-card-subtitle {
+            font-size: 0.85rem;
+            color: #b8a8aa;
+            line-height: 1.5;
+        }
+
+        /* 2. 遊戲主畫面 (Main Game Page) */
+        .game-page {
+            display: none;
+            height: 100%;
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            background: var(--panel-bg);
+            box-shadow: 0 0 40px rgba(0, 0, 0, 0.8);
+            overflow: hidden;
+        }
+
+
+
+        .left-status-panel {
+            width: 300px;
+            background: rgba(10, 5, 7, 0.95);
+            border-right: 1px solid var(--border-color);
+            padding: 15px;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            overflow-y: auto;
+        }
+
+        .panel-section-title {
+            font-size: 0.9rem;
+            color: var(--accent-gold);
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 5px;
+            letter-spacing: 1px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .stat-group {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .stat-item {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        .stat-label-val {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.85rem;
+            color: var(--text-sub);
+        }
+
+        .stat-bar-bg {
+            width: 100%;
+            height: 10px;
+            background: rgba(255, 255, 255, 0.08);
+            border-radius: 5px;
+            overflow: hidden;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .stat-bar-fill {
+            height: 100%;
+            border-radius: 5px;
+            transition: width 0.4s ease;
+        }
+
+        .fill-sanity {
+            background: linear-gradient(90deg, #2980b9, #3498db);
+        }
+
+        .fill-energy {
+            background: linear-gradient(90deg, #27ae60, #2ecc71);
+        }
+
+        .fill-curse {
+            background: linear-gradient(90deg, #8e44ad, #c0392b);
+        }
+
+        .quick-actions {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 6px;
+            margin-top: 5px;
+        }
+
+        .quick-btn {
+            padding: 7px;
+            font-size: 0.8rem;
+            background: rgba(255, 255, 255, 0.04);
+            border: 1px solid var(--border-color);
+            color: var(--text-main);
+            border-radius: 4px;
+            cursor: pointer;
+            transition: all 0.2s;
+            text-align: center;
+        }
+
+        .quick-btn:hover {
+            border-color: var(--accent-gold);
+            background: rgba(212, 175, 55, 0.15);
+            color: #fff;
+        }
+
+        .character-cards-container {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .char-card {
+            background: rgba(20, 9, 12, 0.8);
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            padding: 8px;
+            display: flex;
+            gap: 10px;
+            align-items: center;
+            transition: all 0.3s;
+        }
+
+        .char-card:hover {
+            border-color: var(--accent-red);
+            box-shadow: 0 0 10px rgba(192, 57, 43, 0.3);
+        }
+
+        .char-avatar {
+            width: 44px;
+            height: 44px;
+            border-radius: 4px;
+            background-size: cover;
+            background-position: center;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            flex-shrink: 0;
+            transition: background-image 0.5s ease;
+        }
+
+        .char-info {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+        }
+
+        .char-name-status {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 0.88rem;
+            font-weight: bold;
+        }
+
+        .char-mental-badge {
+            font-size: 0.7rem;
+            padding: 2px 5px;
+            border-radius: 3px;
+            background: rgba(192, 57, 43, 0.2);
+            color: var(--accent-crimson);
+            border: 1px solid rgba(192, 57, 43, 0.3);
+        }
+
+        .right-stage-container {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+            background: #000;
+        }
+
+        .stage-view {
+            height: 300px;
+            position: relative;
+            background-size: cover;
+            background-position: center;
+            transition: background-image 0.8s ease, filter 0.8s ease;
+            overflow: hidden;
+            border-bottom: 1px solid var(--border-color);
+            flex-shrink: 0;
+        }
+
+        .v8-hud {
+            position: absolute;
+            top: 12px;
+            right: 15px;
+            display: flex;
+            flex-direction: column;
+            align-items: flex-end;
+            gap: 4px;
+            font-family: 'Share Tech Mono', monospace;
+            font-size: 0.85rem;
+            color: #00ff66;
+            text-shadow: 0 0 6px rgba(0, 255, 102, 0.8);
+            pointer-events: none;
+            z-index: 20;
+        }
+
+        .v8-rec-box {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            color: #ff3333;
+            font-weight: bold;
+            text-shadow: 0 0 8px rgba(255, 51, 51, 0.9);
+        }
+
+        .rec-dot {
+            width: 10px;
+            height: 10px;
+            background-color: #ff3333;
+            border-radius: 50%;
+            animation: recBlink 1s infinite;
+        }
+
+        @keyframes recBlink {
+
+            0%,
+            100% {
+                opacity: 1;
+            }
+
+            50% {
+                opacity: 0.2;
+            }
+        }
+
+        .darkred-tint {
+            filter: sepia(0.7) saturate(3.5) hue-rotate(-65deg) contrast(1.25) !important;
+        }
+
+        .bw-static {
+            filter: grayscale(1) contrast(2.5) brightness(0.7) !important;
+        }
+
+        .nightvision-tint {
+            filter: sepia(0.85) saturate(4) hue-rotate(85deg) contrast(1.4) brightness(0.9) !important;
+        }
+
+        .dialogue-history {
+            flex: 1;
+            padding: 18px;
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
+            background: rgba(8, 4, 5, 0.96);
+            overflow-y: auto;
+        }
+
+        .dialogue-history::-webkit-scrollbar {
+            width: 5px;
+        }
+
+        .dialogue-history::-webkit-scrollbar-thumb {
+            background: var(--border-color);
+            border-radius: 3px;
+        }
+
+        .chapter-banner {
+            text-align: center;
+            color: var(--accent-gold);
+            font-size: 1.1rem;
+            margin: 10px 0;
+            padding: 8px;
+            border-top: 1px dashed rgba(212, 175, 55, 0.4);
+            border-bottom: 1px dashed rgba(212, 175, 55, 0.4);
+            letter-spacing: 2px;
+        }
+
+        .dialogue-box {
+            display: flex;
+            gap: 12px;
+            opacity: 0;
+            transform: translateY(8px);
+            animation: fadeIn 0.35s ease forwards;
+        }
+
+        @keyframes fadeIn {
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .dialogue-avatar-mini {
+            width: 48px;
+            height: 48px;
+            border-radius: 6px;
+            background-size: cover;
+            background-position: center;
+            border: 1px solid var(--border-color);
+            flex-shrink: 0;
+        }
+
+        .dialogue-bubble {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid var(--border-color);
+            padding: 10px 16px;
+            border-radius: 0 12px 12px 12px;
+            max-width: 85%;
+        }
+
+        .dialogue-box.peter .dialogue-bubble {
+            border-left: 3px solid var(--peter-color);
+            background: rgba(231, 76, 60, 0.06);
+        }
+
+        .dialogue-box.lanlan .dialogue-bubble {
+            border-left: 3px solid var(--lanlan-color);
+            background: rgba(22, 160, 133, 0.06);
+        }
+
+        .dialogue-box.jornona .dialogue-bubble {
+            border-left: 3px solid var(--jornona-color);
+            background: rgba(255, 118, 117, 0.06);
+        }
+
+        .dialogue-box.melas .dialogue-bubble {
+            border-left: 3px solid var(--melas-color);
+            background: rgba(142, 68, 173, 0.06);
+        }
+
+        .dialogue-box.lynn .dialogue-bubble {
+            border-left: 3px solid var(--lynn-color);
+            background: rgba(52, 152, 219, 0.06);
+        }
+
+        .dialogue-box.suche .dialogue-bubble {
+            border-left: 3px solid var(--suche-color);
+            background: rgba(243, 156, 18, 0.06);
+        }
+
+        .dialogue-box.luoan .dialogue-bubble {
+            border-left: 3px solid var(--luoan-color);
+            background: rgba(46, 204, 113, 0.06);
+        }
+
+        .dialogue-box.student .dialogue-bubble {
+            border-left: 3px solid var(--student-color);
+            background: rgba(155, 89, 182, 0.06);
+        }
+
+        .dialogue-box.hecui .dialogue-bubble {
+            border-left: 3px solid var(--hecui-color);
+            background: rgba(39, 174, 96, 0.06);
+        }
+
+        .speaker-name {
+            font-weight: bold;
+            font-size: 0.95rem;
+            margin-bottom: 4px;
+        }
+
+        .dialogue-text {
+            font-size: 1.05rem;
+            line-height: 1.6;
+            color: #dcdde1;
+        }
+
+        .system-msg {
+            background: rgba(25, 10, 12, 0.85);
+            border-left: 3px solid var(--accent-red);
+            padding: 8px 14px;
+            font-style: italic;
+            color: #c8b8ba;
+            font-size: 0.95rem;
+            border-radius: 3px;
+        }
+
+        .action-control-area {
+            padding: 15px;
+            background: rgba(14, 6, 8, 0.98);
+            border-top: 1px solid var(--border-color);
+            min-height: 100px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        .continue-btn {
+            width: 100%;
+            padding: 14px;
+            background: transparent;
+            border: 1px solid var(--accent-red);
+            color: var(--accent-red);
+            font-size: 1.05rem;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-align: center;
+            border-radius: 4px;
+            letter-spacing: 2px;
+        }
+
+        .continue-btn:hover {
+            background: rgba(192, 57, 43, 0.2);
+            box-shadow: 0 0 20px rgba(192, 57, 43, 0.5);
+            color: #fff;
+        }
+
+        .choices-container {
+            display: none;
+            flex-direction: column;
+            gap: 10px;
+            width: 100%;
+        }
+
+        .choice-btn {
+            width: 100%;
+            padding: 12px 18px;
+            background: rgba(25, 10, 12, 0.85);
+            border: 1px solid var(--border-color);
+            color: #e0e0e8;
+            text-align: left;
+            cursor: pointer;
+            transition: all 0.25s;
+            font-size: 0.98rem;
+            border-radius: 4px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .choice-btn:hover {
+            border-color: var(--accent-gold);
+            color: #fff;
+            background: rgba(212, 175, 55, 0.15);
+            padding-left: 24px;
+        }
+
+        .modal-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.88);
+            z-index: 100;
+            display: none;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .modal-box {
+            width: 100%;
+            max-width: 550px;
+            background: rgba(16, 6, 8, 0.98);
+            border: 1px solid var(--accent-red);
+            border-radius: 8px;
+            padding: 20px;
+            box-shadow: 0 0 35px rgba(192, 57, 43, 0.4);
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            max-height: 85vh;
+            overflow-y: auto;
+        }
+
+        .left-status-panel {
+            width: 300px;
+            border-right: 1px solid var(--border-color);
+            padding: 24px;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            background: rgba(8, 4, 5, 0.96);
+            overflow-y: auto;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+
+        .left-status-panel.collapsed {
+            width: 40px !important;
+            padding: 24px 5px !important;
+        }
+
+        .left-status-panel.collapsed>*:not(.collapse-btn) {
+            display: none !important;
+        }
+
+        .collapse-btn {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            background: rgba(10, 4, 6, 0.9);
+            border: 1px solid var(--border-color);
+            color: var(--accent-gold);
+            cursor: pointer;
+            z-index: 100;
+            border-radius: 4px;
+            padding: 4px 8px;
+            font-size: 14px;
+            transition: transform 0.3s ease;
+        }
+
+        .left-status-panel.collapsed .collapse-btn {
+            right: 4px;
+            transform: rotate(180deg);
+        }
+
+        .profile-avatar,
+        .dialogue-avatar-mini,
+        .speaker-avatar {
+            background-size: cover !important;
+            background-position: top center !important;
+            background-repeat: no-repeat !important;
+        }
+
+        .modal-title {
+            font-size: 1.1rem;
+            color: var(--accent-gold);
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 8px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .close-modal-btn {
+            background: none;
+            border: none;
+            color: var(--text-sub);
+            font-size: 1.2rem;
+            cursor: pointer;
+        }
+
+        .close-modal-btn:hover {
+            color: #fff;
+        }
+
+        .inventory-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 10px;
+        }
+
+        .item-card {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid var(--border-color);
+            padding: 10px;
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .item-icon {
+            font-size: 1.5rem;
+        }
+
+        .item-name {
+            font-size: 0.9rem;
+            color: #ddd;
+        }
+
+        .ending-page {
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 80vh;
+            text-align: center;
+            background: rgba(8, 2, 4, 0.95);
+            border: 1px solid var(--accent-red);
+            border-radius: 12px;
+            padding: 30px;
+        }
+
+        .ending-title-text {
+            font-size: 2.2rem;
+            color: var(--accent-crimson);
+            margin-bottom: 15px;
+            text-shadow: 0 0 25px rgba(231, 76, 60, 0.8);
+        }
+
+        .ending-desc-box {
+            max-width: 600px;
+            font-size: 1.05rem;
+            line-height: 1.8;
+            color: #dcdde1;
+            margin-bottom: 30px;
+            background: rgba(255, 255, 255, 0.03);
+            padding: 20px;
+            border-radius: 8px;
+            border: 1px solid var(--border-color);
+        }
+
+        /* 人物檔案列表卡片樣式 */
+        .profile-card {
+            background: rgba(20, 8, 12, 0.85);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 12px;
+            display: flex;
+            gap: 12px;
+            align-items: flex-start;
+        }
+
+        .profile-avatar {
+            width: 56px;
+            height: 56px;
+            border-radius: 6px;
+            background-size: cover;
+            background-position: center;
+            border: 1px solid var(--accent-gold);
+            flex-shrink: 0;
+        }
+
+        .profile-info-box {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        .profile-name-title {
+            font-size: 1rem;
+            font-weight: bold;
+            color: var(--accent-gold);
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .profile-desc {
+            font-size: 0.85rem;
+            color: #ccc;
+            line-height: 1.5;
+        }
+
+        .profile-quote {
+            font-size: 0.8rem;
+            color: var(--accent-red);
+            font-style: italic;
+            margin-top: 2px;
+        }
+    
+        @media (max-width: 800px) {
+            body, html {
+                margin: 0; padding: 0; width: 100%; height: 100%; overflow: hidden;
+            }
+            .container {
+                flex-direction: column;
+                transform: none !important;
+                width: 100vw;
+                height: 100vh;
+                border: none;
+                border-radius: 0;
+            }
+            .left-status-panel {
+                width: 100%;
+                height: 50vh;
+                border-right: none;
+                border-bottom: 2px solid #333;
+                position: absolute;
+                top: 0;
+                z-index: 100;
+                background: rgba(10, 10, 10, 0.95);
+            }
+            .left-status-panel.collapsed {
+                height: 40px;
+                overflow: hidden;
+            }
+            .right-stage-container {
+                width: 100%;
+                height: 100vh;
+                flex-direction: column;
+            }
+            .stage-view {
+                height: 40vh;
+                border-bottom: 2px solid #333;
+            }
+            .dialogue-history {
+                height: 60vh;
+                padding-bottom: 80px;
+            }
+        }
+
+    </style>
+</head>
+
+<body>
+
+    <div class="bg-animation">
+        <div class="fog"></div>
+    </div>
+    <div class="crt-overlay"></div>
+
+    <!-- 音樂與音效控制器 -->
+    <div class="audio-controls" id="bgmToggle" title="切換民俗恐怖音樂">
+        <span id="audioIcon">🔊</span>
+        <span style="font-size: 0.82rem; color: var(--accent-gold);" id="bgmTitleText">背景音樂: 寒院履聲</span>
+    </div>
+
+    <audio id="bgmPlayer" loop>
+        <source src="https://file.garden/aWe99vhwaGcNwkok/BGM%E7%B4%94%E4%BA%AB/Steps_on_the_Cold_Courtyard.mp3"
+            type="audio/mpeg">
+    </audio>
+
+    <div class="container" id="mainContainer">
+        <!-- 1. 首頁 (Title Screen) -->
+        <div class="home-page" id="homePage">
+            <h1 class="game-title">歲 神</h1>
+            <div class="game-subtitle">鏡影與血祭 · 中式民俗恐怖冒險</div>
+
+            <div
+                style="display: flex; flex-direction: column; gap: 12px; margin-top: 15px; width: 100%; max-width: 320px;">
+                <button class="start-btn" id="startNewGameBtn">📜 開始新遊戲</button>
+                <button class="start-btn" onclick="openModal('chapterSelectModal')"
+                    style="background: rgba(142, 68, 173, 0.2); border-color: var(--accent-purple);">🎴 章節選擇</button>
+                <button class="start-btn" onclick="loadGame()"
+                    style="background: rgba(39, 174, 96, 0.2); border-color: var(--accent-jade);">💾 讀取紀錄</button>
+                <button class="start-btn" id="titleGalleryBtn"
+                    style="background: rgba(212, 175, 55, 0.15); border-color: var(--accent-gold);">🏆 結局圖鑑</button>
+            </div>
+        </div>
+
+        <!-- 2. 遊戲主頁面 (Game Page) -->
+        <div class="game-page" id="gamePage">
+            <!-- 左側：DoL 屬性條面板 (手機豎屏自動化身為頂部狀態列) -->
+            <div class="left-status-panel" id="statusPanel">
+                <button class="collapse-btn" onclick="toggleStatusPanel()">◀</button>
+                <div class="panel-section-title">
+                    <span>解咒者狀態</span>
+                    <span style="color: var(--accent-crimson); font-weight: bold;" id="dayText">Day 1 陰氣籠罩</span>
+                </div>
+
+                <div class="stat-group">
+                    <div class="stat-item">
+                        <div class="stat-label-val">
+                            <span>🧠 精神穩定 (Sanity)</span>
+                            <span id="sanityVal">90%</span>
+                        </div>
+                        <div class="stat-bar-bg">
+                            <div class="stat-bar-fill fill-sanity" id="sanityFill" style="width: 90%;"></div>
+                        </div>
+                    </div>
+
+                    <div class="stat-item">
+                        <div class="stat-label-val">
+                            <span>⚡ 體力 (Energy)</span>
+                            <span id="energyVal">100/100</span>
+                        </div>
+                        <div class="stat-bar-bg">
+                            <div class="stat-bar-fill fill-energy" id="energyFill" style="width: 100%;"></div>
+                        </div>
+                    </div>
+
+                    <div class="stat-item">
+                        <div class="stat-label-val">
+                            <span>☠️ 煞氣侵蝕 (Curse)</span>
+                            <span id="curseVal">10%</span>
+                        </div>
+                        <div class="stat-bar-bg">
+                            <div class="stat-bar-fill fill-curse" id="curseFill" style="width: 10%;"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="quick-actions">
+                    <button class="quick-btn" onclick="openModal('profileModal')">📁 人物檔案</button>
+                    <button class="quick-btn" onclick="openModal('inventoryModal')">🎒 道具背包</button>
+                    <button class="quick-btn" onclick="openModal('logsModal')">📜 解咒秘錄</button>
+                    <button class="quick-btn" onclick="saveGame()">💾 存檔紀錄</button>
+                </div>
+
+                <div class="panel-section-title" style="margin-top: 10px;">歲神詛詛局中人</div>
+                <div class="character-cards-container">
+                    <div class="char-card" id="cardPeter" style="display: none;">
+                        <div class="char-avatar" id="avatarPeter"
+                            style="background-image: url('https://file.garden/aWe99vhwaGcNwkok/%E7%A0%B4%E9%A0%AD/%E5%BD%BC%E5%BE%97.png');">
+                        </div>
+                        <div class="char-info">
+                            <div class="char-name-status">
+                                <span style="color: var(--peter-color);" id="namePeterLabel">裴得少爺</span>
+                                <span class="char-mental-badge" id="peterStatusBadge">神經緊繃</span>
+                            </div>
+                            <div class="stat-label-val" style="font-size: 0.78rem;">
+                                <span>好感度: <b id="peterAffinityText">30%</b></span>
+                                <span>怒火值: <b id="peterRageText">20%</b></span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="char-card" id="cardLanlan" style="display: none;">
+                        <div class="char-avatar"
+                            style="background-image: url('https://file.garden/aWe99vhwaGcNwkok/%E7%A0%B4%E9%A0%AD/%E8%98%AD%E8%98%AD.png');">
+                        </div>
+                        <div class="char-info">
+                            <div class="char-name-status">
+                                <span style="color: var(--lanlan-color);">藍嵐保鑣</span>
+                                <span class="char-mental-badge" id="lanlanStatusBadge">縮脖膽怯</span>
+                            </div>
+                            <div class="stat-label-val" style="font-size: 0.78rem;">
+                                <span>傷勢值: <b id="lanlanHurtText">0%</b></span>
+                                <span>好感度: <b id="lanlanAffinityText">40%</b></span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="char-card" id="cardJornona" style="display: none;">
+                        <div class="char-avatar"
+                            style="background-image: url('https://file.garden/aWe99vhwaGcNwkok/%E7%A0%B4%E9%A0%AD/%E5%96%AC%E8%AB%BE%E5%A8%9C.png');">
+                        </div>
+                        <div class="char-info">
+                            <div class="char-name-status">
+                                <span style="color: var(--jornona-color);">喬若楠</span>
+                                <span class="char-mental-badge" id="jornonaStatusBadge">失蹤花旦</span>
+                            </div>
+                            <div class="stat-label-val" style="font-size: 0.78rem;">
+                                <span>水仙花毒: <b id="jornonaPoisonText">90%</b></span>
+                                <span>好感度: <b id="jornonaAffinityText">50%</b></span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 右側：舞台與劇情對話 -->
+            <div class="right-stage-container">
+                <div class="stage-view" id="stageView"
+                    style="background-image: url('https://file.garden/aWe99vhwaGcNwkok/DOKIDOKI/BG/%E6%95%99%E5%AE%A4_2Week.jpg');">
+                    <div class="v8-hud" id="v8Hud">
+                        <div class="v8-rec-box"><span class="rec-dot"></span> REC</div>
+                        <div class="v8-timecode" id="v8Timecode">199X-07-15 01:14:09</div>
+                        <div class="v8-vhs-info">SP [VHS-C]</div>
+                        <div class="v8-battery">🔋 18%</div>
+                    </div>
+                </div>
+
+                <div class="dialogue-history" id="dialogueHistory"></div>
+
+                <div class="action-control-area">
+                    <button class="continue-btn" id="continueBtn">點擊繼續...</button>
+                    <div class="choices-container" id="choicesContainer"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 3. 結局頁面 (Ending Screen) -->
+        <div class="ending-page" id="endingPage">
+            <h2 class="ending-title-text" id="endingTitle">結局名稱</h2>
+            <div class="ending-desc-box" id="endingDesc">結局詳細文案描述...</div>
+            <button class="start-btn" onclick="location.reload()">重新返回標題</button>
+        </div>
+    </div>
+
+    <!-- 獨立『林恩的帳本記錄』 Modal -->
+    <div class="modal-overlay" id="ledgerModal">
+        <div class="modal-box"
+            style="border: 2px solid var(--accent-gold); background: rgba(25, 15, 12, 0.98); box-shadow: 0 0 40px rgba(212, 175, 55, 0.4);">
+            <div class="modal-title">
+                <span
+                    style="font-family: 'Cinzel', serif; font-weight: bold; color: var(--accent-gold); letter-spacing: 2px;">📜
+                    林恩的記帳筆記本 (Lynn's Ledger)</span>
+                <span style="font-size: 0.8rem; color: #aaa;">民俗解咒筆記 · 存照</span>
+            </div>
+            <div class="ledger-paper-body"
+                style="background: rgba(245, 230, 202, 0.06); border: 1px dashed rgba(212, 175, 55, 0.5); border-radius: 6px; padding: 16px; font-family: 'Noto Serif TC', serif; line-height: 1.8; color: #f0e6d2;">
+                <div style="font-size: 1.1rem; font-weight: bold; color: var(--accent-gold); border-bottom: 1px solid rgba(212, 175, 55, 0.3); padding-bottom: 6px; margin-bottom: 12px; display: flex; justify-content: space-between;"
+                    id="ledgerTitle">
+                    [ 帳本紀錄：第一章 ]
+                </div>
+                <div style="display: flex; flex-direction: column; gap: 8px; font-size: 0.95rem;">
+                    <div><b style="color: var(--accent-red);">📌 項目：</b> <span id="ledgerItem">-</span></div>
+                    <div><b style="color: var(--accent-jade);">👤 對象：</b> <span id="ledgerTarget">-</span></div>
+                    <div><b style="color: var(--accent-purple);">🔍 特徵 / 診斷：</b> <span id="ledgerDetail">-</span></div>
+                    <div style="margin-top: 6px; padding: 10px; background: rgba(0,0,0,0.4); border-left: 3px solid var(--accent-gold); font-style: italic; color: #dcdde1;"
+                        id="ledgerNote">
+                        私房備註...
+                    </div>
+                </div>
+            </div>
+            <button class="start-btn" id="ledgerSignBtn"
+                style="margin-top: 10px; background: rgba(212, 175, 55, 0.2); border-color: var(--accent-gold); color: var(--accent-gold);">🖋️
+                蓋印簽名並繼續...</button>
+        </div>
+    </div>
+
+    <!-- 📁 人物檔案圖鑑 Modal (登場人物檔案) -->
+    <div class="modal-overlay" id="profileModal">
+        <div class="modal-box">
+            <div class="modal-title">
+                <span>📁 歲神 · 局中人物檔案圖鑑</span>
+                <button class="close-modal-btn" onclick="closeModal('profileModal')">✕</button>
+            </div>
+            <div id="profileContainer" style="display: flex; flex-direction: column; gap: 10px;"></div>
+        </div>
+    </div>
+
+    <!-- 章節選擇 Modal -->
+    <div class="modal-overlay" id="chapterSelectModal">
+        <div class="modal-box">
+            <div class="modal-title">
+                <span>🎴 歲神 · 章節選擇 (卷一 ~ 卷九 + 尾聲)</span>
+                <button class="close-modal-btn" onclick="closeModal('chapterSelectModal')">✕</button>
+            </div>
+            <div style="display: flex; flex-direction: column; gap: 10px;">
+                <div class="chapter-card-gothic" onclick="closeModal('chapterSelectModal'); startGame('ch1');">
+                    <div class="chapter-card-title"><span>卷一：迷霧</span><span
+                            style="font-size: 0.8rem; color: var(--accent-red);">[ 荒山搜尋 ]</span></div>
+                    <div class="chapter-card-subtitle">荒山異霧，無腳紙人學生引路。駱安班主墜落黑洞...</div>
+                </div>
+                <div class="chapter-card-gothic" onclick="closeModal('chapterSelectModal'); startGame('ch2');">
+                    <div class="chapter-card-title"><span>卷二：紙人妝</span><span
+                            style="font-size: 0.8rem; color: var(--accent-jade);">[ 陰村古戲 ]</span></div>
+                    <div class="chapter-card-subtitle">屋簷晒乾腸條，竹篾紙人何翠現身。裴得少爺扔符水杯，冷酷西醫覺醒...</div>
+                </div>
+                <div class="chapter-card-gothic" onclick="closeModal('chapterSelectModal'); startGame('ch3');">
+                    <div class="chapter-card-title"><span>卷三：鏡中花</span><span
+                            style="font-size: 0.8rem; color: var(--accent-purple);">[ 化妝間血祭 ]</span></div>
+                    <div class="chapter-card-subtitle">吐血水仙喬若楠，暴起紅線釘牆藍嵐。剪斷脊椎第三節詛咒之結...</div>
+                </div>
+                <div class="chapter-card-gothic" onclick="closeModal('chapterSelectModal'); startGame('ch4');">
+                    <div class="chapter-card-title"><span>卷四：無菌與灰燼</span><span
+                            style="font-size: 0.8rem; color: var(--accent-gold);">[ 縫合消毒 ]</span></div>
+                    <div class="chapter-card-subtitle">火燒止血鉗縫合藍嵐，魏天縱提出「真菌寄生與百年隔離區」理論...</div>
+                </div>
+                <div class="chapter-card-gothic" onclick="closeModal('chapterSelectModal'); startGame('ch5');">
+                    <div class="chapter-card-title"><span>卷五：發霉的信</span><span
+                            style="font-size: 0.8rem; color: var(--accent-jade);">[ 綠光夜視 ]</span></div>
+                    <div class="chapter-card-subtitle">綠夜視鏡頭，石牌坊再遇鬼魂李客，呈上碳化報告：「魏老師，及格了嗎？」...</div>
+                </div>
+                <div class="chapter-card-gothic" onclick="closeModal('chapterSelectModal'); startGame('ch6');">
+                    <div class="chapter-card-title"><span>卷六：壞死的切口</span><span
+                            style="font-size: 0.8rem; color: var(--accent-red);">[ 免疫巡邏 ]</span></div>
+                    <div class="chapter-card-subtitle">山道避開木面具村民「白血球」，李客派克鋼筆引怪掩護，抵達敖家祠堂...</div>
+                </div>
+                <div class="chapter-card-gothic" onclick="closeModal('chapterSelectModal'); startGame('ch7');">
+                    <div class="chapter-card-title"><span>卷七：喜喪</span><span
+                            style="font-size: 0.8rem; color: var(--accent-purple);">[ 物理麻醉 ]</span></div>
+                    <div class="chapter-card-subtitle">駱安班主被真菌操縱，林恩精準切斷脊椎3-4節中樞神經「物理麻醉」...</div>
+                </div>
+                <div class="chapter-card-gothic" onclick="closeModal('chapterSelectModal'); startGame('ch8');">
+                    <div class="chapter-card-title"><span>卷八：金箔下的心跳</span><span
+                            style="font-size: 0.8rem; color: var(--accent-crimson);">[ 破佛斬源 ]</span></div>
+                    <div class="chapter-card-subtitle">歲神肉身佛心跳轟鳴，骨粉白磷點燃紅線，魏天縱切斷主動脈...</div>
+                </div>
+                <div class="chapter-card-gothic" onclick="closeModal('chapterSelectModal'); startGame('ch9');">
+                    <div class="chapter-card-title"><span>卷九：紙做的牢籠</span><span
+                            style="font-size: 0.8rem; color: var(--accent-gold);">[ 終局解鎖 ]</span></div>
+                    <div class="chapter-card-subtitle">鎖春宅院曼陀羅花海，金髮紅嫁衣乾屍顧影，雙骨相擁解脫...</div>
+                </div>
+                <div class="chapter-card-gothic" onclick="closeModal('chapterSelectModal'); startGame('epi');">
+                    <div class="chapter-card-title"><span>尾聲：帳本最後一頁</span><span
+                            style="font-size: 0.8rem; color: var(--accent-jade);">[ 尾聲超生 ]</span></div>
+                    <div class="chapter-card-subtitle">三天後城內醫院結帳，派克鋼筆留於石獅，魏天縱與李客相繼超生...</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 背包 Modal -->
+    <div class="modal-overlay" id="inventoryModal">
+        <div class="modal-box">
+            <div class="modal-title"><span>🎒 醫具與解咒道具</span><button class="close-modal-btn"
+                    onclick="closeModal('inventoryModal')">✕</button></div>
+            <div class="inventory-grid" id="inventoryGrid"></div>
+        </div>
+    </div>
+
+    <!-- 解咒錄 Modal -->
+    <div class="modal-overlay" id="logsModal">
+        <div class="modal-box">
+            <div class="modal-title"><span>📜 歲神祭祀解咒秘錄</span><button class="close-modal-btn"
+                    onclick="closeModal('logsModal')">✕</button></div>
+            <div style="font-size: 0.95rem; line-height: 1.8; color: #ccc;">
+                <b>民俗記載：</b><br>
+                1. 水仙花毒：吐血水仙乃歲神獻祭之引，以百年相思為食。<br>
+                2. 詛詛紅線：苗司大巫之傀儡線，需以『生鏽手術剪』與『止血鉗』強行切除。<br>
+                3. 脊椎第三節：詛詛紅線交織纏繞之『結』所在之處。
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const BGM_COURTYARD = "https://file.garden/aWe99vhwaGcNwkok/BGM%E7%B4%94%E4%BA%AB/Steps_on_the_Cold_Courtyard.mp3";
+        const BGM_STONEGATE = "https://file.garden/aWe99vhwaGcNwkok/BGM%E7%B4%94%E4%BA%AB/Beneath_the_Stone_Gate.mp3";
+
+        /* 全域變數定義 */
+        let state = {
+            playerName: "林恩",
+            isPossessed: false,
+            sanity: 100, energy: 100, curse: 0,
+            peter: { affinity: 30, rage: 20 },
+            lanlan: { affinity: 40, hurt: 0 },
+            jornona: { affinity: 50, poison: 90 },
+            inventory: [
+                { id: 'scalpel', name: '常用手術刀', icon: '🔪' },
+                { id: 'notebook', name: '記帳本', icon: '📓' },
+                { id: 'talisman', name: '莫大夫黃符', icon: '📜' }
+            ]
+        };
+        let avatars = {
+            '林恩': 'https://file.garden/aWe99vhwaGcNwkok/%E7%A0%B4%E9%A0%AD/%E6%9E%97%E6%81%A9.png',
+            '裴得': 'https://file.garden/aWe99vhwaGcNwkok/%E7%A0%B4%E9%A0%AD/%E5%BD%BC%E5%BE%97.png',
+            '藍嵐': 'https://file.garden/aWe99vhwaGcNwkok/%E7%A0%B4%E9%A0%AD/%E8%98%AD%E8%98%AD.png',
+            '駱安': 'https://file.garden/aWe99vhwaGcNwkok/%E7%A0%B4%E9%A0%AD/%E8%AB%BE%E7%B6%AD%E5%AE%89.png',
+            '喬若楠': 'https://file.garden/aWe99vhwaGcNwkok/%E7%A0%B4%E9%A0%AD/%E5%96%AC%E8%AB%BE%E5%A8%9C.png',
+            '何翠': 'https://file.garden/aWe99vhwaGcNwkok/%E7%A0%B4%E9%A0%AD/%E7%A7%91%E7%B5%B2%E5%A1%94.png',
+            '蘇澈': 'https://file.garden/aWe99vhwaGcNwkok/%E7%A0%B4%E9%A0%AD/%E8%98%87%E9%83%8E.png',
+            '魏天縱': 'https://file.garden/aWe99vhwaGcNwkok/%E7%A0%B4%E9%A0%AD/%E7%B6%AD%E7%B4%8D%E6%89%98.png',
+            '顧影': 'https://file.garden/aWe99vhwaGcNwkok/%E7%A0%B4%E9%A0%AD/%E7%B4%8D%E5%B8%8C%E7%91%9F%E6%96%AF.png',
+            '李客': 'https://file.garden/aWe99vhwaGcNwkok/%E7%A0%B4%E9%A0%AD/%E5%85%8B%E9%87%8C%E6%98%82.png',
+            '學生': 'https://file.garden/aWe99vhwaGcNwkok/%E7%A0%B4%E9%A0%AD/%E5%85%8B%E9%87%8C%E6%98%82.png',
+            '敖羅': 'https://file.garden/aWe99vhwaGcNwkok/%E7%A0%B4%E9%A0%AD/%E5%A5%A7%E6%8B%89.png',
+            '歲神': 'https://file.garden/aWe99vhwaGcNwkok/%E7%A0%B4%E9%A0%AD/%E5%A5%A7%E6%8B%89.png',
+            '苗司大巫': 'https://file.garden/aWe99vhwaGcNwkok/%E7%A0%B4%E9%A0%AD/%E8%9C%9C%E6%8B%89%E6%80%9D.png',
+            '苗司': 'https://file.garden/aWe99vhwaGcNwkok/%E7%A0%B4%E9%A0%AD/%E8%9C%9C%E6%8B%89%E6%80%9D.png',
+            '穆滿': 'https://file.garden/aWe99vhwaGcNwkok/%E7%A0%B4%E9%A0%AD/%E5%B0%8F%E7%9B%AE.png',
+            '莫離': 'https://file.garden/aWe99vhwaGcNwkok/%E7%A0%B4%E9%A0%AD/%E8%8C%89%E8%8E%89.png',
+            '海生': 'https://file.garden/aWe99vhwaGcNwkok/%E7%A0%B4%E9%A0%AD/%E6%B5%B7%E7%A5%9E.png',
+            '幽明': 'https://file.garden/aWe99vhwaGcNwkok/%E7%A0%B4%E9%A0%AD/%E5%86%A5%E7%A5%9E.png',
+            '村民': 'https://file.garden/aWe99vhwaGcNwkok/%E7%A0%B4%E9%A0%AD/%E5%86%A5%E7%A5%9E.png'
+        };
+        const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        function playBeep(freq, type, duration, vol = 0.03) {
+            if (audioCtx.state === 'suspended') audioCtx.resume();
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+            osc.type = type;
+            osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
+            gain.gain.setValueAtTime(vol, audioCtx.currentTime);
+            osc.connect(gain);
+            gain.connect(audioCtx.destination);
+            osc.start();
+            gain.gain.exponentialRampToValueAtTime(0.00001, audioCtx.currentTime + duration);
+            osc.stop(audioCtx.currentTime + duration);
+        }
+        let sfx = {
+            click: () => playBeep(600, 'sine', 0.1),
+            chime: () => playBeep(880, 'sine', 0.5),
+            type: () => playBeep(400, 'square', 0.05),
+            snip: () => playBeep(1200, 'sawtooth', 0.1),
+            bata: () => { playBeep(300, 'square', 0.1); setTimeout(() => playBeep(250, 'square', 0.1), 100); }
+        };
+        let dialogueQueue = [];
+        let isTyping = false;
+        let currentChapterType = 'ch1';
+
+        function changeBGM(src, title) {
+            const player = document.getElementById('bgmPlayer');
+            if (player.src !== src) {
+                player.src = src;
+                player.play().catch(e => console.log('Autoplay prevented'));
+                document.getElementById('bgmTitleText').textContent = '背景音樂: ' + title;
+            }
+        }
+        function triggerScreenShake() {
+            const view = document.getElementById('stageView');
+            view.classList.remove('screenshake');
+            void view.offsetWidth;
+            view.classList.add('screenshake');
+        }
+
+        /* 人物檔案資料庫 */
+        const characterProfilesData = {
+            lynn: {
+                name: "林恩 (Lynn)",
+                role: "解咒者 / 民俗記帳士",
+                avatar: "https://file.garden/aWe99vhwaGcNwkok/%E7%A0%B4%E9%A0%AD/%E6%9E%97%E6%81%A9.png",
+                info: "冷靜沉著的解咒者兼記帳士。隨身攜帶常用手術刀與線裝記帳本，受銀行家穆滿重金委託深入鬼山搜尋失蹤劇團。",
+                relation: "「比起虛無縹緲的神，我更相信拿著刀的人。」"
+            },
+            suche: {
+                name: "蘇澈 (Su Che / 蘇郎)",
+                role: "手持 V8 攝影師",
+                avatar: "https://file.garden/aWe99vhwaGcNwkok/%E7%A0%B4%E9%A0%AD/%E8%98%87%E9%83%8E.png",
+                info: "穆滿與喬若楠的大哥。性格溫和客氣，身穿洗得發白的襯衫，手持 V8 攝影機紀錄一切，為了尋找二弟若楠不惜冒險深入鬼域。",
+                relation: "「只要能找到若楠，花多少錢我都願意。」"
+            },
+            lanlan: {
+                name: "藍嵐 (Lanlan)",
+                role: "身材高大保鑣",
+                avatar: "https://file.garden/aWe99vhwaGcNwkok/%E7%A0%B4%E9%A0%AD/%E8%98%AD%E8%98%AD.png",
+                info: "身材極度高大、肌肉發達的保鑣，但性格極度膽小害怕鬼怪。手捏黃符縮著脖子，對喬若楠深具忠誠關懷。",
+                relation: "「林老闆……這霧裡頭好像有東西在吹我後脖子！」"
+            },
+            peter: {
+                name: "裴得少爺 (Peter)",
+                role: "通靈富家少爺",
+                avatar: "https://file.garden/aWe99vhwaGcNwkok/%E7%A0%B4%E9%A0%AD/%E5%BD%BC%E5%BE%97.png",
+                info: "穿著絲綢唐裝、手捧裝滿莫大夫「清潔符水」保溫杯的病態少爺。體質純陰神經質，常能感應到常人看不到的鬼差水鬼。",
+                relation: "「味道不對……前面太乾了，連陰差都不敢過去。」"
+            },
+            luoan: {
+                name: "駱安 (Luo An / 諾維安)",
+                role: "諾家班班主",
+                avatar: "https://file.garden/aWe99vhwaGcNwkok/%E7%A0%B4%E9%A0%AD/%E8%AB%BE%E7%B6%AD%E5%AE%89.png",
+                info: "劇團班主，性格陽光爽朗。手錶不翼而飛，將山中3天誤認為10分鐘，受真菌引路學生指引墜落黑洞。",
+                relation: "「大家沒事吧？剛才個學生模樣的小兄弟指引我們往這邊走呢！」"
+            },
+            like: {
+                name: "李客 (Li Ke / 克里昂)",
+                role: "民國九年醫科實習生鬼魂",
+                avatar: "https://file.garden/aWe99vhwaGcNwkok/%E7%A0%B4%E9%A0%AD/%E5%85%8B%E9%87%8C%E6%98%82.png",
+                info: "身穿黑色中山裝、胸口插著派克鋼筆的年輕學生鬼魂。懸空三寸守在石牌坊百載，只為向魏老師交付實驗數據灰燼。",
+                relation: "「魏老師，李客沒跑！及格了嗎？」"
+            },
+            hecui: {
+                name: "何翠 (He Cui / 科絲塔)",
+                role: "劇團打雜小妹 / 竹篾紙人",
+                avatar: "https://file.garden/aWe99vhwaGcNwkok/%E7%A0%B4%E9%A0%AD/%E7%A7%91%E7%B5%B2%E5%A1%94.png",
+                info: "穆老闆疼愛的小妹，性格天真單純。手腕化為竹篾黃紙，發出『BATA』關節聲，把翠綠棉襖借給了紙人李客。",
+                relation: "「BATA……蘇澈哥哥，若楠哥哥的戲唱完了嗎？」"
+            },
+            weiTianzong: {
+                name: "魏天縱 (Nicolaus Venator / 維納托)",
+                role: "西醫教授 (鬼上身覺醒)",
+                avatar: "https://file.garden/aWe99vhwaGcNwkok/%E7%A0%B4%E9%A0%AD/%E7%B6%AD%E7%B4%88%E6%89%98.png",
+                info: "附身在裴得少爺體內的冷酷西醫教授靈魂（白髮藍眼高馬尾）。極度崇尚無菌與解剖學，火燒止血鉗縫合傷口，誓要切除歲神毒瘤。",
+                relation: "「愚昧！這根本就是滋生霉菌與瘟疫的溫床！刀！」"
+            },
+            jornona: {
+                name: "喬若楠 (Jornona / 喬諾娜)",
+                role: "劇團台柱花旦",
+                avatar: "https://file.garden/aWe99vhwaGcNwkok/%E7%A0%B4%E9%A0%AD/%E5%96%AC%E8%AB%BE%E5%A8%9C.png",
+                info: "諾家班台柱花旦。身穿大紅貴妃女蟒戲服，受水仙花毒寄生吐血花瓣，在鏡前哀婉尋找『少爺』的信。",
+                relation: "「少爺……您的信，送到了嗎？」"
+            },
+            melas: {
+                name: "苗司大巫 (Melas / 蜜拉思)",
+                role: "歲神祭司大巫",
+                avatar: "https://file.garden/aWe99vhwaGcNwkok/%E7%A0%B4%E9%A0%AD/%E8%9C%9C%E6%8B%89%E6%80%9D.png",
+                info: "頭戴紫色小花、黑眼圈深邃的歲神祭司。以紅線神經真菌操控全村村民與肉身佛，與魏天縱有著百年前的宿怨。",
+                relation: "「一百年了……魏大夫，進別人診室不知道要敲門嗎？」"
+            }
+        };
+
+        let unlockedProfiles = ['lynn'];
+
+        function unlockProfile(id) {
+            if (!unlockedProfiles.includes(id)) {
+                unlockedProfiles.push(id);
+                sfx.chime();
+                const sysEl = document.createElement('div');
+                sysEl.className = 'system-msg';
+                sysEl.style.color = 'var(--accent-gold)';
+                sysEl.textContent = `【人物檔案解鎖】：解鎖了 [${characterProfilesData[id].name}] 的個人檔案！`;
+                const dialogueHistory = document.getElementById('dialogueHistory');
+                if (dialogueHistory) dialogueHistory.appendChild(sysEl);
+            }
+        }
+
+        function renderProfiles() {
+            const container = document.getElementById('profileContainer');
+            container.innerHTML = '';
+            unlockedProfiles.forEach(id => {
+                const data = characterProfilesData[id];
+                if (data) {
+                    const card = document.createElement('div');
+                    card.className = 'profile-card';
+                    card.innerHTML = `
+                        <div class="profile-avatar" style="background-image: url('${data.avatar}')"></div>
+                        <div class="profile-info-box">
+                            <div class="profile-name-title">
+                                <span>${data.name}</span>
+                                <span style="font-size: 0.78rem; color: var(--accent-crimson);">${data.role}</span>
+                            </div>
+                            <div class="profile-desc">${data.info}</div>
+                            <div class="profile-quote">${data.relation}</div>
+                        </div>
+                    `;
+                    container.appendChild(card);
+                }
+            });
+        }
+
+        /* 鬼上身時切換裴得頭像為魏天縱頭像 */
+        function possessPeterByWeiTianzong() {
+            const avatarEl = document.getElementById('avatarPeter');
+            const labelEl = document.getElementById('namePeterLabel');
+            if (avatarEl) avatarEl.style.backgroundImage = `url('https://file.garden/aWe99vhwaGcNwkok/%E7%A0%B4%E9%A0%AD/%E7%B6%AD%E7%B4%8D%E6%89%98.png')`;
+            if (labelEl) labelEl.textContent = "魏天縱 (西醫教授)";
+            unlockProfile('weiTianzong');
+        }
+
+        /* 第一章：迷霧 完整無刪減劇本 */
+/* 完整三萬六千字劇本生成 */
+
+/* 《歲神》全章節精細劇本 —— 第一章至第三章 (js/story_ch1_to_ch3.js) */
+
+/* 完整三萬六千字劇本生成 (精確版) */
+
+/* 《歲神》全章節精細劇本 —— 第一章至第三章 (js/story_ch1_to_ch3.js) */
+
+/* 完整三萬六千字劇本生成 (極致還原版 + 智能頭像識別) */
+
+const chapter1Script = [
+    { type: 'bgm', src: BGM_COURTYARD, title: '第一章：迷霧' },
+    { type: 'v8hud', active: true },
+    { type: 'tint', color: 'normal' },
+    { type: 'chapter', text: `第一章：迷霧` },
+    { type: 'unlockCard', target: 'cardLanlan', charName: '藍嵐' },
+    { type: 'unlockCard', target: 'cardPeter', charName: '裴得' },
+    { speaker: '系統', text: `[ 影音檔案編號：199X-07-14_A ]` },
+    { speaker: '系統', text: `來源： 蘇澈的手持 V8 攝影機` },
+    { speaker: '系統', text: `備註： 畫面中有大量雜訊，收音狀況不佳。` },
+    { speaker: '系統', text: `(畫面劇烈晃動，鏡頭對準了一片濃得化不開的白霧，隱約能看見周圍扭曲的枯樹影。)` },
+    { speaker: '林恩', text: `（畫外音，聲音冷靜帶著一絲疲憊）：「穆老闆這筆錢，真是不好賺。這台機器從剛剛開始就一直發燙……莫大夫給的提神藥我也吞了兩顆，但那種被盯著的感覺還是沒消失。` },
+    { speaker: '系統', text: `(鏡頭轉向旁邊，拍到一個身材高大的男人正縮著脖子，手裡捏著一張皺巴巴的黃符。)` },
+    { speaker: '藍嵐', text: `（聲音發抖，壓低嗓子）：「蘇、蘇哥，別拍我了。這霧裡頭……好像有什麼東西在吹我後脖子，涼颼颼的。` },
+    { speaker: '林恩', text: `（畫外音）：「那是你的冷汗，藍嵐。把領子拉好。我們已經在原地繞了第三圈了。` },
+    { speaker: '系統', text: `＊` },
+    { speaker: '系統', text: `山裡的濕氣重得像是能擰出水來。` },
+    { speaker: '系統', text: `我合上那本用來記帳的筆記本，抬手擦了擦眼鏡上的霧氣。這是一筆風險極高的生意。三天前，城裡那位年輕的銀行家——穆滿（穆老闆），帶著一箱子定金和一張支票找到了我。他說他的兩個哥哥，跟著自家的「諾家班」劇團，在翻越這座山去鄰縣演出的途中，連人帶戲箱子，憑空蒸發了。` },
+    { speaker: '系統', text: `失蹤的是戲班的台柱喬若楠，以及打雜的小妹何翠。` },
+    { speaker: '系統', text: `而此刻站在我身邊的攝影師蘇澈，正是穆老闆和喬若楠的大哥。` },
+    { speaker: '系統', text: `「林先生，喝口水吧。」` },
+    { speaker: '系統', text: `一張溫和的笑臉遞過來一個軍用水壺。蘇澈穿著件洗得發白的襯衫，雖然滿臉愁容，眼底全是紅血絲，但對誰都還是客客氣氣的。` },
+    { speaker: '林恩', text: `「謝了。」我接過水壺，抿了一口，「穆老闆給的地圖標示就是這附近，但這霧太邪門了。」` },
+    { speaker: '蘇澈', text: `「我不怕花錢，只要能找到若楠。」蘇澈輕聲說道，手下意識地摩挲著相機，「穆滿在家裡急得快把房子拆了，若楠身體不好，何翠那丫頭又傻乎乎的……」` },
+    { speaker: '系統', text: `「林老闆……」` },
+    { speaker: '系統', text: `一聲幽幽的呼喚打斷了我們的對話。隊伍最後，裴得穿著一身不合時宜的絲綢唐裝，臉色蒼白得像剛糊好的紙紮人。他手裡捧著個保溫杯，裡面裝的不是熱茶，而是從莫大夫那裡弄來的特製「清潔符水」。` },
+    { speaker: '林恩', text: `「怎麼了？又不舒服？」我皺眉問道，看著他把那怪味液體當水喝。` },
+    { speaker: '系統', text: `裴得搖搖頭，伸出一根手指，神經質地指著右前方那片密林，那雙灰色的眼睛裡透著一股說不出的詭異。` },
+    { speaker: '裴得', text: `「味道不對。」裴得吸了吸鼻子，聲音發飄，「這附近……沒有海生的味道。」` },
+    { speaker: '系統', text: `藍嵐一聽這話，立刻湊了過來，緊張地問：「海生？是這山裡的野獸嗎？」` },
+    { speaker: '裴得', text: `「不是野獸，是水鬼。」裴得嘿嘿一笑，指了指腳下的泥土，「以前聽老人說，這片山脈的水系通著隔壁村，那兒有個叫海生的傻水鬼，專門把人拖下水玩。雖然鬧騰，但他是『活』的，有他在的地方，水是流動的。」` },
+    { speaker: '系統', text: `說到這，裴得突然打了個寒顫，眼神變得直勾勾的：「但前面……前面太『乾』了。連那個總是跟在海生後面抓人的瞎眼陰差幽明，都不往那邊走。」` },
+    { speaker: '蘇澈', text: `「你是說……前面連鬼差都不去？」藍嵐聽得臉都綠了，一身腱子肉緊繃著，下意識地往蘇澈身後縮。` },
+    { speaker: '裴得', text: `「不是不去，是進不去。」裴得嘴角抽搐了一下，壓低聲音，「那邊被什麼東西給『縫』起來了。死氣沉沉的，一點風都沒有。」` },
+    { speaker: '系統', text: `雖然裴得平時瘋瘋癲癲，但他這張「烏鴉嘴」向來準得邪門。` },
+    { speaker: '系統', text: `我嘆了口氣，從懷裡摸出那把慣用的手術刀藏在袖口，對著蘇澈點了點頭：「走吧，去看看。既然穆老闆出了大價錢，哪怕前面是閻王殿，我們也得去敲敲門。」` },
+    { speaker: '系統', text: `我們撥開半人高的荒草，朝著裴得指的那個「連鬼差都不去」的方向走去。隨著深入，霧氣竟然奇蹟般地淡了一些。` },
+    { speaker: '系統', text: `前方隱約出現了一個人影。` },
+    { speaker: '系統', text: `那人背對著我們，穿著一身有些破舊的夾克，正焦急地在原地打轉，嘴裡還唸唸有詞。` },
+    { speaker: '蘇澈', text: `「駱班主？」蘇澈驚訝地喊了一聲，快步走上前去，「您怎麼在這兒？若楠呢？」` },
+    { speaker: '系統', text: `那人猛地回頭，露出一張陽光卻滿是汗水的臉。正是失蹤劇團的班主，駱安。看到我們，他像是看到了救星，眼睛一下子亮了起來，那股子熱情勁兒，彷彿我們不是在陰森的鬼山，而是在熱鬧的廟會上相遇。` },
+    { speaker: '蘇澈', text: `「哎呀！蘇澈！你們可算跟上來了！」駱安抹了一把額頭上的汗，哈哈一笑，露出潔白的牙齒，「我就說這山路不好走吧！我剛才回頭一看沒見著你們，心想著就在這兒等會兒。怎麼樣？大家沒事吧？」` },
+    { speaker: '系統', text: `我和蘇澈對視一眼，都從對方眼裡看到了驚恐。` },
+    { speaker: '蘇澈', text: `「駱班主，」蘇澈的聲音依然溫和，但語氣有些發顫，「您……在這兒等多久了？」` },
+    { speaker: '駱安', text: `「多久？」駱安愣了一下，抬手看了看手腕，那裡空空如也（手錶似乎不見了），他撓撓頭，「也就……十來分鐘？我想著若楠這孩子走得快，可能在前頭探路呢，我就沒敢亂跑。」` },
+    { speaker: '系統', text: `十來分鐘？` },
+    { speaker: '系統', text: `我們在山裡找了整整三天。` },
+    { speaker: '系統', text: `穆滿在城裡發動了幾百人搜山，連個鬼影都沒看見。` },
+    { speaker: '系統', text: `一陣寒意順著脊椎爬上來。我看著駱安那張毫無陰霾、乾淨爽朗的笑臉，突然覺得這份「正常」才是最大的不正常。` },
+    { speaker: '藍嵐', text: `「那個……駱哥啊，」藍嵐嚥了口唾沫，試探性地問道，「你真的只等了十分鐘？這周圍……有沒有看見什麼奇怪的東西？」` },
+    { speaker: '駱安', text: `「奇怪的東西？」駱安眨眨眼，一臉茫然，「沒有啊！這裡挺安靜的，空氣也好。哦對了！」` },
+    { speaker: '系統', text: `他像是想起了什麼，側過身，指著身後那條蜿蜒向上的石板路。` },
+    { speaker: '林恩', text: `「剛才有個學生模樣的小兄弟，特別熱心！他說前面的路塌了，讓我們往這邊走，說是能通到村子裡。若楠好像就是跟著他指的路先過去了。」` },
+    { speaker: '系統', text: `順著駱安手指的方向，霧氣散開一角。` },
+    { speaker: '系統', text: `一座長滿青苔的石牌坊靜靜地矗立在那裡。牌坊下，果然站著一個年輕人。` },
+    { speaker: '系統', text: `他穿著一身民國時期的黑色學生裝，中山領扣得嚴嚴實實，胸前的口袋裡插著一支鋼筆。他站得筆直，臉上帶著一種屬於那個年代特有的、充滿希望與正直的微笑。` },
+    { speaker: '系統', text: `看見我們望過去，那學生熱情地揮了揮手，聲音清脆地穿透了迷霧：` },
+    { speaker: '林恩', text: `「你們是老師的朋友嗎？快過來！前面的路不通，老師還在裡面等信呢！快跟我來！」` },
+    { speaker: '系統', text: `蘇澈舉起V8攝影機，想要拉近焦距拍清楚那人的臉。` },
+    { speaker: '系統', text: `「別過去。」` },
+    { speaker: '系統', text: `裴得突然抓住了我的手腕，他的手冰得像塊鐵。他死死盯著那個學生，鼻血滴答滴答地落在枯葉上，滴在那張價值不菲的唐裝上。` },
+    { speaker: '林恩', text: `「怎麼了？又是哪路神仙？」我低聲問，手術刀已經滑到了掌心。` },
+    { speaker: '裴得', text: `「我不認識他……」裴得的聲音在發抖，帶著一種看見同類的興奮與恐懼，「但我看見他身上……全是舊報紙的味道。」` },
+    { speaker: '系統', text: `「什麼意思？」` },
+    { speaker: '裴得', text: `「你看他的腳。」裴得的眼珠子死死瞪著前方。` },
+    { speaker: '系統', text: `我瞇起眼睛，視線穿過鏡頭。` },
+    { speaker: '系統', text: `那學生的笑容燦爛而真誠，熱心地指引著方向，彷彿真的是一個好客的嚮導。` },
+    { speaker: '系統', text: `但他的褲管下面，空蕩蕩的。` },
+    { speaker: '系統', text: `他的布鞋懸在離地三寸的地方，整個人像是掛在霧裡的一張剪紙。` },
+    { speaker: '裴得', text: `「他不是人……」裴得喃喃自語，嘴裡發出咯咯的怪笑，「他都死透了，怎麼還覺得自己活著呢？」` },
+    { speaker: '系統', text: `就在這時，駱安一無所覺地轉過身，對著那個「學生」揮手喊道：「哎！小兄弟！謝啦！我們這就來！」` },
+    { speaker: '駱安', text: `「駱安！別應他！！」` },
+    { speaker: '系統', text: `我大吼一聲，想要衝上去拉住駱安。` },
+    { speaker: '系統', text: `但一切都晚了。` },
+    { speaker: '系統', text: `那個學生聽到了回應，臉上的笑容變得更加燦爛，也更加僵硬。他緩緩抬起手，指著身後那條漆黑的山路。` },
+    { speaker: '系統', text: `「客人都齊了……那就開戲吧。」` },
+    { speaker: '系統', text: `一陣淒厲的嗩吶聲毫無徵兆地在我們耳邊炸響。那聲音尖銳刺耳，像是某種喜樂，又像是送葬的哀樂。` },
+    { speaker: '系統', text: `霧氣瞬間翻湧，將那個學生的身影吞沒。而駱安原本站立的地方，只剩下一個深不見底的黑洞。` },
+    { speaker: '蘇澈', text: `「駱班主！」蘇澈驚呼一聲。` },
+    { speaker: '系統', text: `我低頭看向手中的帳本，上面不知何時多了一行用水漬寫成的字：` },
+    { speaker: '系統', text: `『生人勿近，活人勿出。』` },
+    { speaker: '林恩', text: `「看來，」我合上本子，感覺到背後的冷汗已經浸透了衣衫，「穆老闆要找的人，怕是已經進了鬼門關了。」` },
+    { type: 'chapter', text: '第一章：迷霧 —— 完結' },
+    { type: 'ledger', title: '[ 帳本紀錄：第一章：迷霧 ]', item: '紀錄', target: '無', detail: '點擊以進入下一章。', note: '', nextAction: () => startGame('ch2') }
+];
+
+const chapter2Script = [
+    { type: 'bgm', src: BGM_COURTYARD, title: '第二章：紙人妝' },
+    { type: 'v8hud', active: true },
+    { type: 'tint', color: 'normal' },
+    { type: 'chapter', text: `第二章：紙人妝` },
+    { type: 'unlockCard', target: 'cardJornona', charName: '喬若楠' },
+    { speaker: '系統', text: `[ 影音檔案編號：199X-07-14_B ]` },
+    { speaker: '系統', text: `來源： 蘇澈的手持 V8 攝影機` },
+    { speaker: '系統', text: `備註： 畫面呈現詭異的暗紅色色偏。` },
+    { speaker: '系統', text: `(鏡頭對準了地面，是一雙繡花鞋的特寫。鞋尖上沾滿了泥，但繡工精緻得不像凡物。)` },
+    { speaker: '蘇澈', text: `（畫外音，呼吸急促）：「駱班主不見了。就在我們眼皮子底下……掉進了那個洞裡。林先生說那是視覺誤差，是山裡的瘴氣讓人產生了幻覺。但我……` },
+    { speaker: '系統', text: `(鏡頭猛地抬起，掃過一排破敗的瓦房。屋簷下掛滿了被風吹得嘩嘩作響的紅布條。)` },
+    { speaker: '蘇澈', text: `「……但我剛才在取景器裡看到，那些布條不是布。那是腸子。曬乾了的腸子。」` },
+    { speaker: '系統', text: `＊` },
+    { speaker: '系統', text: `穿過那座石牌坊後，霧氣雖然淡了，但空氣卻變得更加黏稠，帶著一股說不出的甜腥味。像是放久了的供果，混著劣質脂粉的味道。` },
+    { speaker: '藍嵐', text: `「這地方……這地方不對勁。」藍嵐手裡緊緊攥著那張黃符，高大的身軀幾乎要貼到我背上，「林老闆，你覺不覺得這村子太安靜了？連聲狗叫都沒有。」` },
+    { speaker: '系統', text: `確實太安靜了。` },
+    { speaker: '系統', text: `我們腳下是青石板鋪成的路，兩旁是典型的晚清民居，木製的門窗大多已經腐朽，黑洞洞的窗口像是一隻隻被挖空的眼睛，死死盯著我們這些不速之客。` },
+    { speaker: '系統', text: `最詭異的是那些線。` },
+    { speaker: '系統', text: `無數根細若游絲的紅線，密密麻麻地纏繞在樹梢、屋簷、甚至是路邊的石獅子上。它們在空中交織成一張巨大的網，而這些網的盡頭，全部匯聚向村子最高處的那座神社。` },
+    { speaker: '裴得', text: `「別碰那些線。」裴得突然開口，他手裡的保溫杯已經見底了，嘴唇被符水染得烏青，「那是苗司大巫縫衣服用的。碰斷了，他就該拿你的皮去補了。」` },
+    { speaker: '蘇澈', text: `「苗司是誰？」蘇澈敏銳地捕捉到了這個名字，鏡頭轉向裴得。` },
+    { speaker: '系統', text: `裴得嘿嘿一笑，指了指自己的腦袋：「剛才那個學生……李客，他在我腦子裡說的。他說苗司大巫手藝好，針腳密，縫了一百年都沒散。」` },
+    { speaker: '系統', text: `我心裡一沉。裴得這種「通靈」的狀態越來越頻繁了，這說明這裡的磁場對他的影響正在加劇。` },
+    { speaker: '林恩', text: `「先找人。」我強壓下心中的不安，拿出穆老闆給的照片，「駱班主既然是跟著那個學生的指引走的，那若楠他們應該也在這村子裡。」` },
+    { speaker: '系統', text: `我們沿著紅線最密集的方向走去。轉過一個街角，前方豁然開朗。` },
+    { speaker: '系統', text: `那是一座古舊的戲台。` },
+    { speaker: '系統', text: `戲台周圍掛滿了白色的燈籠，風一吹，燈籠裡的燭火忽明忽暗。而戲台下方的長凳上，竟然坐滿了「人」。` },
+    { speaker: '藍嵐', text: `「有人！」藍嵐驚喜地喊了一聲，下意識就要衝過去問路。` },
+    { speaker: '林恩', text: `「站住！」我一把拉住他，「看清楚點。」` },
+    { speaker: '系統', text: `藍嵐停下腳步，瞇起眼睛仔細一看，臉色瞬間變得煞白。` },
+    { speaker: '系統', text: `那些「人」穿著藍布褂子，坐得筆直，但他們的臉上……全都戴著木頭面具。有的畫著笑臉，有的畫著哭臉，卻沒有一個人發出一點聲音。` },
+    { speaker: '系統', text: `而在戲台的一角，一個穿著翠綠色襖子的小小身影，正背對著我們，拿著一把掃帚，機械地掃著地上的落葉。` },
+    { speaker: '蘇澈', text: `「那是……」蘇澈的手猛地一抖，聲音裡帶上了哭腔，「那是翠兒！是何翠！」` },
+    { speaker: '系統', text: `那是劇團裡打雜的小妹，何翠。她身上那件翠綠色的襖子，還是出發前穆老闆特意找裁縫給她做的，說是襯她的膚色。` },
+    { speaker: '蘇澈', text: `「翠兒！」蘇澈喊了一聲，快步跑了過去。` },
+    { speaker: '系統', text: `那個身影停下了動作，緩緩轉過身來。` },
+    { speaker: '系統', text: `那一刻，我聽到了藍嵐倒吸冷氣的聲音。` },
+    { speaker: '系統', text: `何翠手裡拿著的根本不是掃帚，而是一根紮紙人用的竹篾。她的臉上塗著厚厚的白粉，兩腮打著豔俗的紅暈，就像是紙紮店裡童女的妝容。` },
+    { speaker: '系統', text: `但她的眼神卻是清澈的，天真得讓人心疼。` },
+    { speaker: '蘇澈', text: `「蘇澈哥哥？」何翠歪了歪頭，那一頭綠髮上沾滿了紙屑，她發出了一聲奇怪的關節摩擦聲——BATA，「真是奇怪，你們怎麼才來呀？若楠哥哥的戲都要唱完了。」` },
+    { speaker: '蘇澈', text: `「翠兒，你……」蘇澈伸出手想要碰她，卻被我攔住了。` },
+    { speaker: '系統', text: `我盯著何翠的手腕。那裡沒有皮膚的紋理，只有一層層糊上去的黃紙，連接處還露出了竹條的骨架。` },
+    { speaker: '何翠', text: `「何翠，」我盡量讓聲音聽起來平靜，手裡的手術刀已經滑到了指尖，「若楠在哪裡？」` },
+    { speaker: '系統', text: `何翠眨了眨眼，那雙淡黃色的眼睛裡透著一股懵懂：「若楠哥哥在台上呀。苗司大巫說，只要若楠哥哥唱得好，歲神就會高興，大家就都不用肚子餓了。」` },
+    { speaker: '系統', text: `說著，她指了指身後那座黑沉沉的戲台後台。` },
+    { speaker: '蘇澈', text: `「可是蘇澈哥哥，」何翠突然低下頭，看著自己那雙用紙糊成的手，語氣裡帶著一絲委屈，「我覺得好冷哦。剛才有個叫李客的大哥哥，他說他沒有衣服穿，我就把我的棉襖借給他了。我是不是很好心？」` },
+    { speaker: '系統', text: `我順著她的視線看去，只見角落裡堆著一堆破舊的紙紮人。其中一個紙紮人身上，正披著一件破破爛爛的翠綠色棉襖。而那個紙紮人的臉上，用墨水歪歪扭扭地寫著兩個字：李客。` },
+    { speaker: '蘇澈', text: `「好心……翠兒最好心了。」蘇澈的聲音哽咽了，他顯然也看出了不對勁，但不敢說破。` },
+    { speaker: '何翠', text: `「對了！」何翠像是想起了什麼，高興地拍了拍手，發出乾澀的紙張撞擊聲，「林老闆，穆少爺也來了嗎？他說好要給我帶糖吃的。」` },
+    { speaker: '系統', text: `聽到穆老闆的名字，我心裡一酸。那個在城裡呼風喚雨的年輕銀行家，要是知道他疼愛的小妹變成了這副模樣，怕是會把這座山都給炸平了。` },
+    { speaker: '林恩', text: `「穆少爺……在後面呢。」我撒了個謊，「你帶我們去找若楠，穆少爺就來了。」` },
+    { speaker: '何翠', text: `「好呀！BATA！」何翠開心地轉過身，走路時輕飄飄的，腳後跟根本不著地，「跟我來，後台就在那邊。不過你們要小聲點哦，苗司大巫不喜歡吵鬧。」` },
+    { speaker: '系統', text: `她領著我們走向那座陰森的戲台。` },
+    { speaker: '系統', text: `就在我們即將踏入後台的那一刻，一直跟在隊伍最後、抱著保溫杯瑟瑟發抖的裴得，突然停下了腳步。` },
+    { speaker: '系統', text: `他站在那裡，死死盯著戲台上方那塊寫著「萬壽無疆」的匾額。周圍的霧氣似乎在他身邊凝固了，連風吹過紅布條的聲音都變得模糊不清。` },
+    { speaker: '林恩', text: `「裴少爺？」我看他不走了，下意識地喊了一聲，「別看了，那匾額有什麼問題嗎？」` },
+    { speaker: '系統', text: `裴得沒有回答。 他緩緩地低下頭，看了一眼手中那個裝滿了符水的保溫杯。下一秒，他像是看到什麼髒東西一樣，皺著眉，嫌棄地將那杯子隨手扔進了旁邊的草叢裡。` },
+    { speaker: '系統', text: `哐當。` },
+    { speaker: '系統', text: `這聲脆響在死寂的村子裡顯得格外刺耳。` },
+    { speaker: '系統', text: `我和藍嵐都愣住了。這一路走來，那杯符水可是裴得的命根子，稍微灑出一點他都要鬼叫半天，現在竟然扔了？` },
+    { speaker: '藍嵐', text: `「裴得？」藍嵐壯著膽子走過去，伸手想拍他的肩膀，「你沒事吧？是不是哪裡不舒服……」` },
+    { speaker: '系統', text: `藍嵐的手還沒碰到他的肩膀，裴得猛地轉過頭。` },
+    { speaker: '系統', text: `那一瞬間，藍嵐像是被電到一樣，觸電般地縮回了手，整個人往後退了兩步，差點撞翻蘇澈的攝影機。` },
+    { speaker: '藍嵐', text: `「這……這眼神不對啊……」藍嵐顫聲說道。` },
+    { speaker: '系統', text: `我也看見了。 那雙原本渾濁、充滿恐懼和神經質的灰色眼睛，此刻竟然變得無比清明。那種眼神裡沒有一絲怯懦，反而透著一股子與這身唐裝格格不入的、居高臨下的傲慢與冷靜。` },
+    { speaker: '系統', text: `他挺直了原本佝僂的腰桿，伸手慢條斯理地理了理衣領，動作優雅得像是在整理一件實驗袍，而不是一件皺巴巴的綢緞褂子。` },
+    { speaker: '系統', text: `他環視了一圈周圍破敗的景象，最後視線落在了戲台的柱子上，發出了一聲極具嘲諷意味的冷笑：` },
+    { speaker: '系統', text: `「通風不暢，濕氣鬱結。這種結構，根本就是滋生霉菌和瘟疫的溫床。」` },
+    { speaker: '系統', text: `這聲音還是裴得的聲音，但那語氣、那種咬文嚼字的口吻，絕對不是那個只會喝符水求救的裴大少爺。` },
+    { speaker: '林恩', text: `「你是誰？」我的手已經握緊了袖口的手術刀，冷汗順著鬢角流了下來。` },
+    { speaker: '裴得', text: `「裴得」沒有理會我的問題。他轉過頭，那雙清明得過分的眼睛直直地盯著我，目光銳利得像是在審視一張X光片。` },
+    { speaker: '系統', text: `他向我伸出一隻手，掌心向上，語氣不容置疑：` },
+    { speaker: '系統', text: `「刀。」` },
+    { speaker: '系統', text: `我愣了一下：「什麼？」` },
+    { speaker: '系統', text: `他微微揚起下巴，眼神中帶著一絲不耐煩，彷彿我是個反應遲鈍的助手：` },
+    { speaker: '系統', text: `「手術刀。裡面的『病人』情況危急，還不拿來？」` },
+    { speaker: '系統', text: `我下意識地看了一眼黑洞洞的後台入口。那裡面只有腐朽的木頭味和若有若無的屍臭，哪裡來的病人？` },
+    { speaker: '藍嵐', text: `「林……林老闆，」藍嵐躲在我身後，聲音抖得像篩糠，「裴少爺這是……又招上哪路神仙了？這次來的這個……看著有點兇啊。」` },
+    { speaker: '系統', text: `我看著眼前這個熟悉的陌生人，心裡升起一股前所未有的寒意。以前裴得中邪，要麼是大哭大鬧，要麼是胡言亂語。` },
+    { speaker: '系統', text: `但這一次不一樣。 這一次，這個佔據了他身體的「東西」，太冷靜了。冷靜得像個……活人。` },
+    { type: 'chapter', text: '第二章：紙人妝 —— 完結' },
+    { type: 'ledger', title: '[ 帳本紀錄：第二章：紙人妝 ]', item: '紀錄', target: '無', detail: '點擊以進入下一章。', note: '', nextAction: () => startGame('ch3') }
+];
+
+const chapter3Script = [
+    { type: 'bgm', src: BGM_COURTYARD, title: '第三章：鏡中花' },
+    { type: 'v8hud', active: true },
+    { type: 'tint', color: 'normal' },
+    { type: 'chapter', text: `第三章：鏡中花` },
+    { speaker: '系統', text: `[ 影音檔案編號：199X-07-15_FINAL (?) ]` },
+    { speaker: '系統', text: `來源： 蘇澈的手持 V8 攝影機（帶損毀）` },
+    { speaker: '系統', text: `備註： 畫面只剩下黑白噪點，聲音極度失真，伴隨著巨大的爆裂聲。` },
+    { speaker: '系統', text: `(滋滋——滋滋——)` },
+    { speaker: '系統', text: `(畫面在黑暗中劇烈翻滾，隱約拍到了一隻沾滿鮮血的手，死死抓著地上的紅線。)` },
+    { speaker: '系統', text: `男人的嘶吼聲：` },
+    { speaker: '系統', text: `「燒不掉！！林老闆！這玩意兒……這玩意兒長在肉裡了！！」` },
+    { speaker: '系統', text: `(鏡頭猛地轉向高處，火光沖天。在熊熊烈火中，一個巨大的的影子正在崩塌。)` },
+    { speaker: '系統', text: `冷靜得近乎殘酷的聲音（疑似裴得）： 「別管肉。切斷它。就在脊椎第三節……那裡是『結』。」` },
+    { speaker: '系統', text: `——伴隨著一聲慘叫，隨後是相機落地的撞擊聲。畫面定格在一雙繡花鞋上，鞋邊開滿了白色的花。` },
+    { speaker: '系統', text: `＊` },
+    { speaker: '系統', text: `現實的時間，回到了我們踏入戲台後台的那一刻。` },
+    { speaker: '系統', text: `空氣裡的霉味更重了，混合著一股陳年的樟腦丸味道。蘇澈手裡的 V8 攝影機發出輕微的運轉聲，在死寂的走廊裡顯得格外刺耳。` },
+    { speaker: '系統', text: `走在最前面的「裴得」——如果不看那張臉，我真會以為是哪個剛留洋回來的醫學教授——正背著手，步履穩健地穿過那些垂掛下來的戲服。` },
+    { speaker: '系統', text: `那些戲服大多已經褪色了，蟒袍、霞帔、官衣……一件件掛在橫樑上，袖管隨著穿堂風微微晃動，就像是一個個被吊死在半空中的人。` },
+    { speaker: '系統', text: `藍嵐走得小心翼翼，甚至不敢抬頭看那些衣服，生怕哪件戲服下面突然伸出一雙腳來。` },
+    { speaker: '系統', text: `「這地方太潮了。」` },
+    { speaker: '系統', text: `前面的「裴得」突然停下腳步，伸手摸了一把身旁掛著的一件武生靠旗。他搓了搓手指上的灰塵，眉頭緊鎖，語氣裡滿是嫌棄：` },
+    { speaker: '系統', text: `「真菌菌落超標。在這種環境下長期生活，肺部感染率至少八成。愚昧。」` },
+    { speaker: '系統', text: `我握著手術刀的手心全是汗，聽到這話差點沒反應過來。這都什麼時候了，這傢伙還在關心衛生問題？` },
+    { speaker: '林恩', text: `「裴少爺，」我試探著問道，「您知道若楠在哪嗎？」` },
+    { speaker: '裴得', text: `「裴得」回過頭，那雙灰色的眼睛在昏暗的光線下顯得格外冷漠。他沒有回答我，而是徑直走向角落裡的一個舊櫃子。` },
+    { speaker: '系統', text: `那是個紅漆剝落的木櫃，上面貼著已經發黃的「奠」字封條。` },
+    { speaker: '裴得', text: `「裴得」毫不猶豫地撕開封條，打開櫃門。裡面沒有鬼怪，只有一個積滿灰塵的黑色皮箱。那種款式我很眼熟，是民國初年西醫常用的出診箱。` },
+    { speaker: '系統', text: `他像是看到了什麼老朋友一樣，眼神中閃過一絲複雜的情緒。他伸出手，輕輕撫摸著箱子上那個已經鏽蝕的銅扣，低聲喃喃：` },
+    { speaker: '系統', text: `「……還在啊。」` },
+    { speaker: '林恩', text: `「什麼？」我湊近了一步。` },
+    { speaker: '系統', text: `「沒什麼。」他猛地收回手，恢復了那種冷硬的態度，「工具箱而已。雖然過時了，但勉強能用。」` },
+    { speaker: '系統', text: `就在這時，一陣細微的歌聲從走廊盡頭傳來。` },
+    { speaker: '系統', text: `那聲音很輕，像是在哼唱，又像是在嗚咽。聽不清歌詞，但那婉轉的調子，一聽就是受過專業訓練的嗓子。` },
+    { speaker: '蘇澈', text: `「是若楠！」蘇澈激動地喊了一聲，也不管害不害怕了，扛著攝影機就往前衝。` },
+    { speaker: '藍嵐', text: `「蘇哥！慢點！」藍嵐趕緊跟上，手裡的黃符都被汗水浸透了。` },
+    { speaker: '系統', text: `我們穿過那條掛滿戲服的走廊，來到了一間寬敞的化妝間。` },
+    { speaker: '系統', text: `化妝間裡點著幾根紅蠟燭，光線昏黃曖昧。正中央擺著一張巨大的梳妝台，鏡子上蒙著一層厚厚的灰，卻依然能照出人影。` },
+    { speaker: '系統', text: `一個穿著大紅戲服的身影，正背對著我們，坐在鏡子前。` },
+    { speaker: '系統', text: `他頭上戴著繁複的點翠頭面，身上穿著繡滿金線的女蟒（貴妃裝），那身段極美，哪怕只是坐著，也透著一股子風華絕代的韻味。` },
+    { speaker: '系統', text: `正是失蹤的喬若楠。` },
+    { speaker: '蘇澈', text: `「若楠！」蘇澈喊了一聲，想要衝過去。` },
+    { speaker: '系統', text: `「別動。」` },
+    { speaker: '裴得', text: `「裴得」的聲音冷冷地響起。他站在門口，目光死死盯著那個背影，眼神中竟然流露出一種我從未見過的……悲痛？` },
+    { speaker: '系統', text: `「你看地上。」他說。` },
+    { speaker: '系統', text: `我低頭一看，頓時頭皮發麻。` },
+    { speaker: '系統', text: `喬若楠坐著的椅子下，密密麻麻地爬滿了紅線。那些紅線像是活的一樣，從地板縫裡鑽出來，順著椅腿向上攀爬，鑽進了他那華麗戲服的下擺裡。` },
+    { speaker: '系統', text: `而更恐怖的是，在他腳邊，散落著一地白色的花瓣。 那些花瓣不像是摘下來的，上面帶著血絲，倒像是……從嘴裡吐出來的。` },
+    { speaker: '蘇澈', text: `「若楠……？」蘇澈停下了腳步，聲音顫抖。` },
+    { speaker: '系統', text: `鏡子前的人影緩緩停止了哼唱。 他慢慢地轉過身來。` },
+    { speaker: '系統', text: `那張臉上畫著精緻的妝容，眼角眉梢皆是風情。但他的眼神卻是空洞的，沒有焦距，彷彿透過我們，看向了某個遙遠的時空。` },
+    { speaker: '系統', text: `他看著我們，又好像沒在看我們。在那張塗滿油彩的臉上，我看到了一種令人心碎的淒涼。` },
+    { speaker: '系統', text: `喬若楠微微張開嘴，一朵沾著血的白色水仙花瓣從他唇邊滑落。` },
+    { speaker: '系統', text: `他看著站在最前面的「裴得」，那雙原本空洞的眼睛裡，突然湧起了一層水霧。他露出了一個極其溫柔、卻又極其絕望的笑容，輕聲喚道：` },
+    { speaker: '系統', text: `「少爺……您的信，送到了嗎？」` },
+    { speaker: '系統', text: `那一瞬間，我看到身邊那個一直冷靜傲慢的「裴得」，身體猛地晃了一下。 他死死抓著門框，指關節因為用力而發白，那張總是掛著嘲諷表情的臉上，此刻竟寫滿了震驚與倉皇。` },
+    { speaker: '系統', text: `「……」` },
+    { speaker: '系統', text: `『裴得』張了張嘴，似乎想說些什麼，但那個字像是卡在喉嚨裡的刺，怎麼也吐不出來。` },
+    { speaker: '藍嵐', text: `「若楠你在說什麼啊？」藍嵐完全沒搞懂狀況，他只看到自己的心上人好像中邪了，急得直跺腳，「什麼少爺？我是藍嵐啊！你的保鑣藍嵐啊！」` },
+    { speaker: '系統', text: `藍嵐大步衝了上去，伸手想去拉喬若楠的胳膊。` },
+    { speaker: '系統', text: `「別碰他！！」` },
+    { speaker: '系統', text: `我和『 裴得』 同時喊出聲。` },
+    { speaker: '系統', text: `但已經晚了。 就在藍嵐的手指即將觸碰到喬若楠衣袖的瞬間，那些原本靜止在地上的紅線，突然像受驚的蛇群一樣暴起！` },
+    { speaker: '系統', text: `咻——！` },
+    { speaker: '系統', text: `幾根紅線瞬間纏住了藍嵐的手腕和脖子，將這個一米九的壯漢猛地吊了起來，重重地甩向了旁邊的牆壁。` },
+    { speaker: '藍嵐', text: `「咳呃——！」藍嵐發出一聲痛苦的悶哼，整個人被釘在牆上，那些紅線勒進了他的肉裡，鮮血瞬間滲了出來。` },
+    { speaker: '藍嵐', text: `「藍嵐！」我驚呼一聲，手術刀立刻彈出。` },
+    { speaker: '系統', text: `而坐在鏡子前的「喬若楠」，對這一切騷動視若無睹。他只是癡癡地看著「裴得」，又吐出了一口花瓣，重新轉過身去，對著鏡子，拿起眉筆，繼續描畫那已經完美無缺的眉毛。` },
+    { speaker: '系統', text: `鏡子裡映出的，卻不是喬若楠那張畫著妝的臉。 那模糊的鏡面中，隱約映著一張素淨的、蒼白的、卻美得驚心動魄的男人的臉——那是屬於百年前某個人的倒影。` },
+    { speaker: '系統', text: `「妝還沒畫好……」` },
+    { speaker: '系統', text: `喬若楠對著鏡子裡的影子，柔聲說道：` },
+    { speaker: '苗司', text: `「苗司大巫說了，要漂漂亮亮地去見歲神……不能給少爺丟臉。」` },
+    { speaker: '系統', text: `站在門口的「裴得」閉上了眼睛。 當他再次睜開眼時，那眼底的動搖已經消失了，取而代之的是一種能夠將一切燃燒殆盡的怒火。` },
+    { speaker: '系統', text: `他大步走到那個舊皮箱前，一把抓起裡面早已生鏽的手術剪，聲音冷得像是來自地獄的寒冰：` },
+    { speaker: '林恩', text: `「醫生，止血鉗給我。」 「這場戲，該停了。」` },
+    { type: 'chapter', text: '第三章：鏡中花 —— 完結' },
+    { type: 'ledger', title: '[ 帳本紀錄：第三章：鏡中花 ]', item: '紀錄', target: '無', detail: '點擊以進入下一章。', note: '', nextAction: () => startGame('ch4') }
+];
+
+const chapter4Script = [
+    { type: 'bgm', src: BGM_COURTYARD, title: '第四章：無菌與灰燼' },
+    { type: 'v8hud', active: true },
+    { type: 'tint', color: 'normal' },
+    { type: 'chapter', text: `第四章：無菌與灰燼` },
+    { speaker: '系統', text: `[ 影音檔案編號：199X-07-15_MID ] 來源： 蘇澈的手持 V8 攝影機 備註： 靜態畫面，鏡頭架在某個桌子上偷拍。` },
+    { speaker: '系統', text: `(畫面中是一雙手，正在昏黃的燭光下翻閱一本發霉的線裝書。書頁脆得像枯葉，翻動時發出沙沙的響聲。)` },
+    { speaker: '林恩', text: `（畫外音，極低聲）： 「……不是鬼打牆。是劇本。這裡的每一天都是寫好的。卯時唱戲，午時祭祀，子時……」(那雙手突然停住，手指按在一行硃砂批註上。)` },
+    { speaker: '林恩', text: `（「子時縫屍。如果我們不按照劇本走，就會被視為『廢棄的道具』，就像駱班主那樣……直接回收。」）(鏡頭外傳來一聲重物落地的悶響，隨後是裴得冷漠的聲音：「別唸了。那個寫劇本的人，一百年前就已經瘋了。」)` },
+    { speaker: '系統', text: `【現實時間：戲班化妝間】` },
+    { speaker: '系統', text: `空氣中瀰漫著濃烈的鐵鏽味——那是陳年的血腥氣與新鮮血液混合的味道。` },
+    { speaker: '系統', text: `「呃……」` },
+    { speaker: '系統', text: `藍嵐發出一聲痛苦的呻吟，從牆上滑落下來。那些詭異的紅線在「裴得」介入的瞬間，像是失去了活力的寄生蟲，迅速枯萎、回縮，最終鑽回了地磚的縫隙裡，只在地板上留下一灘灘暗紅色的痕跡。` },
+    { speaker: '系統', text: `藍嵐的手腕和脖子上被勒出了深可見骨的血痕，皮肉外翻，看著觸目驚心。` },
+    { speaker: '系統', text: `「別亂動。」` },
+    { speaker: '系統', text: `我快步上前，按住想要掙扎起身的藍嵐。作為半個密醫，我見過不少外傷，但這種傷口很奇怪——切口處沒有發炎紅腫，反而呈現出一種灰敗的死色，就像是被吸乾了生氣。` },
+    { speaker: '系統', text: `「紗布，還有酒精。」` },
+    { speaker: '系統', text: `一個冷硬的聲音在我頭頂響起。` },
+    { speaker: '系統', text: `我抬頭，看見「裴得」正站在我身後。他那身名貴的唐裝已經被他嫌棄地脫下了一半，袖子高高挽起，露出瘦弱的小臂。他正拿著那把從舊皮箱裡翻出來的、早已生鏽的止血鉗，放在蠟燭的火焰上炙烤。` },
+    { speaker: '系統', text: `他的動作極其嫻熟，甚至帶著一種優雅的韻律感，完全無視了周圍陰森的環境。` },
+    { speaker: '林恩', text: `「這位……先生，」我瞇起眼睛，盡量讓語氣保持客氣，同時將手中的急救包遞了過去，「酒精我有，但这鉗子已經鏽了，會感染破傷風。」` },
+    { speaker: '裴得', text: `「裴得」瞥了我一眼，那眼神像是在看一個不合格的實習生。` },
+    { speaker: '系統', text: `「破傷風？」他發出一聲短促的冷笑，「在這個充滿了紅黴菌和屍氣的地方，破傷風是你最不需要擔心的問題。這把鉗子虽然鏽了，但它是用德國的精鋼打的，比你手裡那些塑料垃圾可靠得多。」` },
+    { speaker: '系統', text: `他接過我手中的酒精瓶，看都不看一眼，直接擰開蓋子，將整瓶酒精倒在止血鉗和自己的手上。然後，他抓起桌上的一把紙錢，在蠟燭上點燃，面無表情地在自己手上晃過。` },
+    { speaker: '系統', text: `轟的一聲，藍色的火苗在他手上騰起，瞬間完成了「消毒」。` },
+    { speaker: '林恩', text: `「按住那個大個子。」他冷冷地命令道，完全不容置疑，「這具身體太弱了，力氣不夠。如果他亂動，縫歪了別怪我。」` },
+    { speaker: '系統', text: `我愣了一瞬，下意識地按住了藍嵐的肩膀：「藍嵐，忍著點。」` },
+    { speaker: '系統', text: `蘇澈在一旁看得目瞪口呆，但他還是本能地放下攝影機，幫忙按住了藍嵐的腿。` },
+    { speaker: '系統', text: `接下來的五分鐘，化妝間裡只剩下剪刀剪斷皮膚壞死組織的聲音，和藍嵐咬著牙的悶哼聲。` },
+    { speaker: '系統', text: `這個佔據了裴得身體的男人，擁有一雙絕對穩定的手。他在沒有麻醉的情況下，迅速清理了傷口裡的紅線殘渣，並用那把生鏽的鉗子引導著針線，完成了縫合。每一針的間距都像是用尺量過一樣精準。` },
+    { speaker: '系統', text: `「好了。」` },
+    { speaker: '系統', text: `最後一個線頭被剪斷。「裴得」扔下沾血的鉗子，有些嫌棄地甩了甩手，從口袋裡掏出一塊手帕擦拭著指尖（雖然那手帕比他的手還髒）。` },
+    { speaker: '系統', text: `「傷口已經處理了，但他吸入了過量的致幻孢子，」他指了指空氣中漂浮的塵埃，「也就是你們俗稱的『陰氣』。想活命，就別讓他睡著。」` },
+    { speaker: '系統', text: `直到這時，緊繃的氣氛才稍微鬆弛下來。` },
+    { speaker: '系統', text: `蘇澈滿頭大汗地癱坐在地上，看著昏迷不醒的弟弟喬若楠，又看了看眼前這個陌生的「裴得」，喉結滾動了一下，卻不敢開口。` },
+    { speaker: '系統', text: `我扶了扶眼鏡，站起身，直視著眼前這個男人。` },
+    { speaker: '林恩', text: `「傷治好了，現在我們可以談談了嗎？」我問道，「您是誰？為什麼會在裴少爺的身體裡？」` },
+    { speaker: '系統', text: `「裴少爺？」男人挑了挑眉，似乎覺得這個稱呼很可笑，「你是說這個體質純陰、卻毫無精神防禦能力的廢物容器？」` },
+    { speaker: '系統', text: `他轉過身，走到那面蒙塵的鏡子前，看著鏡子裡那張蒼白且陌生的臉（裴得的臉），眼神中閃過一絲厭惡。` },
+    { speaker: '林恩', text: `「我不認識你們，也不認識這個身體的主人。」他淡淡地說道，「至於我是誰……這不重要。重要的是，你們這些穿著奇裝異服的『現代人』，闖進了一個本該在一百年前就被燒毀的隔離區。」` },
+    { speaker: '林恩', text: `「隔離區？」我敏銳地捕捉到了這個詞。` },
+    { speaker: '林恩', text: `「你們以為這些紅線是什麼？鬼魂？詛咒？」他轉過身，隨手從地上撿起一根枯萎的紅線，在燭光下展示給我們看，「這是菌絲。一種寄生在脊椎神經裡，能夠通过生物電控制宿主行動的真菌。所謂的『牽絲戲』，不過是群體性的神經接管。」` },
+    { speaker: '系統', text: `我感到一陣寒意。這個解釋比「鬼魂」更讓我毛骨悚然，因為它聽起來……太科學了，卻又發生在這種極度迷信的場景裡。` },
+    { speaker: '蘇澈', text: `「那……那若楠他……」蘇澈顫抖著指著仍坐在梳妝台前、一動不動的喬若楠。` },
+    { speaker: '系統', text: `喬若楠此時像是一尊精美的蠟像，雙眼無神地看著鏡子，嘴邊還掛著乾涸的血跡和花瓣。` },
+    { speaker: '喬若楠', text: `「他現在處於『休眠期』。」男人走過去，想伸手檢查喬若楠的瞳孔，但在手伸到一半時，又像觸電般收了回來。` },
+    { speaker: '系統', text: `他看著喬若楠那張臉——那張塗著油彩、卻依然能看出絕世風華的臉，眼底的冷漠出現了一絲裂痕。` },
+    { speaker: '系統', text: `「……這張臉，真是一點都沒變。」他低聲喃喃，聲音輕得幾乎聽不見。` },
+    { speaker: '蘇澈', text: `「您認識若楠？」蘇澈急切地問。` },
+    { speaker: '喬若楠', text: `「不認識。」男人迅速恢復了冷硬，轉過身背對著喬若楠，「但我認識那個……正在試圖『穿上』他這副皮囊的東西。」` },
+    { speaker: '系統', text: `他抬起頭，目光掃過我們每一個人——我，受傷的藍嵐，還有抱著攝影機的蘇澈。` },
+    { speaker: '林恩', text: `「聽著，我不管你們是來幹什麼的。盜墓也好，尋親也罷。」他的語氣變得嚴肅且充滿壓迫感，「這個村子的時間是『閉環』的。現在是辛酉年的七月十五，也是你們口中的……不管哪一年。如果不切斷那個持續供能的『源頭』，天亮之後，這裡的一切都會重置。」` },
+    { speaker: '林恩', text: `「重置？」我不解。` },
+    { speaker: '系統', text: `「就是再來一次。」他指了指地上的紅線，「戲會重唱，人會重死。而你們……會變成新的道具。」` },
+    { speaker: '藍嵐', text: `「那我們該怎麼辦？」藍嵐虛弱地問道，臉色慘白。` },
+    { speaker: '系統', text: `男人沉默了片刻。他走到那堆舊皮箱前，從裡面翻出了一本發黃的筆記本和幾瓶貼著洋文標籤的試劑瓶。` },
+    { speaker: '林恩', text: `「戴眼鏡的，」他看向我，「你是個郎中吧？或者說是醫生？」` },
+    { speaker: '林恩', text: `「算是古董商，兼職外科。」我回答。` },
+    { speaker: '系統', text: `「很好。既然是同行，那就好辦了。」` },
+    { speaker: '系統', text: `他將那本筆記本扔給我。我接過一看，封皮上寫著剛勁有力的鋼筆字：《敖家寨病理考察日誌 —— 民國九年》。` },
+    { speaker: '系統', text: `「要想活著出去，就得做一場『大手術』。」` },
+    { speaker: '系統', text: `他推開化妝間的窗戶，外面的霧氣依然濃厚，遠處的戲台上傳來了若有若無的鑼鼓聲——第二場戲，似乎又要開始了。` },
+    { speaker: '林恩', text: `「手術的對象是這個村子。」他回過頭，那雙灰色的眼睛在燭火下燃燒著瘋狂的理智，「而在那之前，我們得先去把我的『助手』找回來。」` },
+    { speaker: '系統', text: `「助手？」` },
+    { speaker: '系統', text: `「一個傻乎乎的學生。」他說道，語氣裡帶著一絲不易察覺的懊惱，「一百年了，那個笨蛋肯定還在村口給人指路，完全不知道自己早就被人砍死了。」` },
+    { speaker: '系統', text: `[ 附註：林恩的帳本記錄 ] 項目：身份評估 對象：附身裴得的靈體 特徵：極度崇尚科學，將靈異現象視為病理。醫術高超，性格傲慢毒舌。 推測：他可能就是這本日誌的主人。一百年前的那位……外來醫生？ 備註：他似乎對我們沒有惡意，但他對喬若楠的態度很奇怪。那種眼神，不像是在看病人，倒像是在看一個……故人。` },
+    { type: 'chapter', text: '第四章：無菌與灰燼 —— 完結' },
+    { type: 'ledger', title: '[ 帳本紀錄：第四章：無菌與灰燼 ]', item: '紀錄', target: '無', detail: '點擊以進入下一章。', note: '', nextAction: () => startGame('ch5') }
+];
+
+const chapter5Script = [
+    { type: 'bgm', src: BGM_COURTYARD, title: '第五章：發霉的信' },
+    { type: 'v8hud', active: true },
+    { type: 'tint', color: 'normal' },
+    { type: 'chapter', text: `第五章：發霉的信` },
+    { speaker: '系統', text: `[ 影音檔案編號：199X-07-15_NIGHT ] 來源： 蘇澈的手持 V8 攝影機 備註： 紅外線夜視模式。畫面呈現詭異的綠色調。` },
+    { speaker: '系統', text: `(鏡頭對準了一棵枯死的老槐樹。樹下蹲著一個人影，正用手在地上瘋狂地刨土。)` },
+    { speaker: '系統', text: `李客的聲音（興奮且急促）： 「就在這兒！我記得我把樣本埋在這兒了！只要把這個帶出去化驗，就能證明老师是對的！這裡根本沒有神，只有病！」` },
+    { speaker: '系統', text: `(那人影抬起頭，對著鏡頭露出一口白牙。但在夜視鏡頭下，他的眼眶裡沒有眼珠，只有兩團黑色的霧氣。)` },
+    { speaker: '李客', text: `（「哎？這位拿著奇怪盒子的先生，您看見我的鋼筆了嗎？我剛才好像掉了一根手指……啊不，是掉了一支鋼筆。」）(鏡頭劇烈抖動，拍攝者似乎被嚇得後退了一步。)` },
+    { speaker: '系統', text: `【現實時間：戲台後巷】` },
+    { speaker: '系統', text: `「把人帶上。別讓他碰到地上的線。」` },
+    { speaker: '裴得', text: `「裴得」——或者該稱呼那位不知名的醫生先生，正站在化妝間門口，冷靜地指揮著撤離。他手裡依然拿著那把生鏽的手術剪，像是在拿著一把權杖。` },
+    { speaker: '系統', text: `藍嵐雖然剛剛縫合了傷口，臉色慘白，但還是咬著牙，將神智不清的喬若楠背了起來。` },
+    { speaker: '藍嵐', text: `「蘇哥，幫我看著點路。」藍嵐喘著粗氣，「這若楠怎麼變得這麼輕啊……輕得像紙一樣。」` },
+    { speaker: '系統', text: `蘇澈一邊護著攝影機，一邊擔憂地看著伏在藍嵐背上的弟弟。喬若楠閉著眼睛，嘴裡還含著那半朵沒吐出來的水仙花，安靜得像個死人。` },
+    { speaker: '裴得', text: `「他現在就是紙。」前面的「裴得」頭也不回地說道，「他的靈魂被抽去『陪神』了，剩下的軀殼正在被這裡的纖維組織——也就是那些紙漿和菌絲同化。再晚半個時辰，他就真的只能去祭祀店裡當擺設了。」` },
+    { speaker: '系統', text: `我聽得心裡發毛，快步跟上：「先生，我們現在去哪？不是要切斷源頭嗎？」` },
+    { speaker: '林恩', text: `「手術前要先會診。」他停下腳步，避開地上的一灘暗紅色積水，「我需要我的助手。那個笨蛋手裡有我當年的病理記錄，還有……這個村子的地圖。」` },
+    { speaker: '系統', text: `我們沿著戲台後的小巷穿行。這裡似乎是村子的背面，沒有掛燈籠，只有無邊的黑暗和潮濕的霧氣。` },
+    { speaker: '系統', text: `這人對路況熟悉得可怕。 他帶著我們左拐右繞，避開了所有掛著紅線的主幹道。即使隔了一百年，即使村屋已經坍塌變形，他依然能準確地找到那些隱蔽的生路。` },
+    { speaker: '系統', text: `「注意呼吸。」他突然提醒道，「這裡的空氣裡有硫磺味。他們開始準備『燻香』了。」` },
+    { speaker: '林恩', text: `「燻香？」我不解。` },
+    { speaker: '系統', text: `「為了掩蓋屍臭。」他冷笑一聲，「歲神（肉身佛）雖然用金粉封住了，但爛了就是爛了。每到子時，他們就得燒這種特製的香，麻痺嗅覺，也麻痺痛覺。」` },
+    { speaker: '系統', text: `走了約莫二十分鐘，前方的霧氣中再次出現了那座熟悉的石牌坊。` },
+    { speaker: '系統', text: `那是我們進村時的地方。 而那個穿著黑色學生裝的年輕人——李客，依然站在那裡。` },
+    { speaker: '系統', text: `他保持著我們離開時的姿勢，一手插在褲兜裡，一手焦急地看著並不存在的手錶。看到我們從霧裡走出來，他的眼睛猛地亮了起來。` },
+    { speaker: '系統', text: `「你們可算出來了！」` },
+    { speaker: '系統', text: `李客快步迎上來（腳後跟依然懸空），一臉抱怨又帶點興奮： 「我剛剛聽到裡面有唱戲的聲音，是不是祭祀開始了？你們見到魏老師了嗎？他脾氣不好，要是知道我沒守好路口，肯定又要罵我朽木不可雕也。」` },
+    { speaker: '系統', text: `藍嵐嚇得往後縮了一步，背著喬若楠大氣都不敢喘。蘇澈的手也在抖，鏡頭晃得厲害。` },
+    { speaker: '系統', text: `畢竟，我們都知道，眼前這個陽光開朗的學生，早就是個死人了。` },
+    { speaker: '系統', text: `只有被附身的「裴得」，面無表情地走了過去。` },
+    { speaker: '系統', text: `他站在李客面前，目光從上到下打量著這個「學生」。看著李客那件已經破了幾個洞、邊緣焦黑的中山裝，還有脖子上那一圈明顯是被砍刀留下的淡淡血痕。` },
+    { speaker: '系統', text: `那個傲慢醫生的眼神，在這一刻變得有些破碎。` },
+    { speaker: '系統', text: `「……朽木。」他輕輕吐出這兩個字，聲音啞得厲害。` },
+    { speaker: '系統', text: `李客愣了一下。他疑惑地看著眼前這張陌生的臉（裴得的臉），撓了撓頭：「先生，您怎麼知道老師以前這麼罵我？還有……您這身衣服好奇怪啊，是滿清遺老嗎？」` },
+    { speaker: '裴得', text: `「裴得」沒有解釋。他深吸了一口氣，強行壓下眼底的情緒，恢復了那種嚴厲的導師姿態，板著臉伸出手：` },
+    { speaker: '系統', text: `「報告呢？」` },
+    { speaker: '系統', text: `這三個字一出，李客像是被觸發了某種開關。他下意識地立正站好，條件反射般地從懷裡掏出一個油紙包，雙手遞了過去，動作熟練得令人心酸。` },
+    { speaker: '林恩', text: `「在！魏老師讓我保管的《神經元傳導阻斷實驗數據》和村落地形圖，都在這裡！我一直貼身收著，絕對沒濕！」` },
+    { speaker: '系統', text: `李客一臉求表揚的表情：「先生，麻煩您轉交給魏老師。告訴他，李客沒跑，李客一直等到援軍來了！」` },
+    { speaker: '裴得', text: `「裴得」的手在半空中停滯了一秒。 然後，他接過了那個油紙包。` },
+    { speaker: '系統', text: `在李客的眼裡，那可能是一個完好的文件包。 但在我們眼裡，那只是一團早已腐爛發黑、甚至一碰就會碎成粉末的爛紙渣。裡面混合著泥土和乾涸了一百年的血塊。` },
+    { speaker: '系統', text: `我看著這一幕，心裡像是被什麼東西堵住了。 這個傻學生，守著一堆爛紙，守了一百年，就為了等這句「轉交」。` },
+    { speaker: '裴得', text: `「裴得」低頭看著手心裡的那團黑灰。他沉默了很久，久到李客臉上的笑容都變得有些僵硬和忐忑。` },
+    { speaker: '李客', text: `「先生？」李客小心翼翼地問，「是不是……受潮了？」` },
+    { speaker: '裴得', text: `「裴得」猛地閉上眼，隨後迅速睜開。他將那團灰燼鄭重地收進了口袋裡（假裝那是文件），然後抬起頭，看著李客，語氣前所未有的溫和，卻又帶著一絲不易察覺的顫抖：` },
+    { speaker: '系統', text: `「沒有。保存得很完美。」` },
+    { speaker: '系統', text: `他頓了頓，用一種宣判般的語氣說道： 「魏老师說……你這門課，及格了。」` },
+    { speaker: '系統', text: `李客的眼睛瞬間睜大，隨即爆發出一陣狂喜。他像是個得到了糖果的孩子，高興得在原地轉了個圈（身體輕飄飄地飄了起來）：` },
+    { speaker: '林恩', text: `「真的嗎？太好了！我終於及格了！哈哈！我就知道我也能幫上忙的！」` },
+    { speaker: '系統', text: `他笑著笑著，突然低下頭，看著自己的手：「咦？奇怪，怎麼感覺手有點麻……」` },
+    { speaker: '系統', text: `「那是因為你太累了。」` },
+    { speaker: '裴得', text: `「裴得」迅速打斷了他，似乎不忍心讓他發現真相。他轉過身，指著身後的村莊，語氣重新變得冷硬且決絕：` },
+    { speaker: '系統', text: `「既然及格了，就歸隊。現在開始臨床實習。」` },
+    { speaker: '李客', text: `「是！」李客興奮地敬了個禮，完全不在意自己現在是個什麼狀態，「實習內容是什麼？」` },
+    { speaker: '裴得', text: `「裴得」從口袋裡摸出那把手術剪，看著遠處神社方向隱隱透出的紅光，眼底閃過一絲狠厲：` },
+    { speaker: '林恩', text: `「截肢。」 「我們要去把那個長在村子脊椎上的毒瘤——也就是那位『歲神』，給切下來。」` },
+    { speaker: '系統', text: `說完，他轉頭看向我，眼神犀利：「林醫生，你的帳本上記好了。這次手術的風險評估是：九死一生。」` },
+    { speaker: '系統', text: `我合上帳本，握緊了手裡的手術刀。` },
+    { speaker: '裴得', text: `「只要報酬到位，」我看了眼仍在傻笑的鬼魂李客，又看了眼背負著沉重過去的「裴得」，「這台手術，我接了。」` },
+    { speaker: '系統', text: `[ 附註：林恩的帳本記錄 ] 項目：特殊文物接收 名稱：李客的報告 狀態：已碳化，無閱讀價值 價值：無價（對某人而言） 備註：這位「魏醫生」的演技不錯。但他在收起那團灰的時候，手在抖。` },
+    { type: 'chapter', text: '第五章：發霉的信 —— 完結' },
+    { type: 'ledger', title: '[ 帳本紀錄：第五章：發霉的信 ]', item: '紀錄', target: '無', detail: '點擊以進入下一章。', note: '', nextAction: () => startGame('ch6') }
+];
+
+const chapter6Script = [
+    { type: 'bgm', src: BGM_COURTYARD, title: '第六章：壞死的切口' },
+    { type: 'v8hud', active: true },
+    { type: 'tint', color: 'normal' },
+    { type: 'chapter', text: `第六章：壞死的切口` },
+    { speaker: '系統', text: `[ 影音檔案編號：199X-07-15_LATE ] 來源： 蘇澈的手持 V8 攝影機 備註： 鏡頭被放置在地面，畫面傾斜。只能拍到無數雙穿著布鞋的腳，密密麻麻地從鏡頭前走過。` },
+    { speaker: '系統', text: `(沒有腳步聲。只有布料摩擦的沙沙聲，像無數條蛇在爬行。)` },
+    { speaker: '林恩', text: `（畫外音，極度壓抑的氣音）： 「……別出聲。別抬頭。」(鏡頭畫面中，一雙腳停了下來。那雙腳上纏滿了紅線，腳踝處露出一截灰白色的骨頭。)` },
+    { speaker: '系統', text: `一個蒼老的、像是兩塊枯木摩擦的聲音傳來： 「奇怪……怎麼有股生人的臭味？」` },
+    { speaker: '系統', text: `(鏡頭猛地黑屏，似乎是被一隻手摀住了。)` },
+    { speaker: '系統', text: `【現實時間：通往神社的山道】` },
+    { speaker: '系統', text: `霧氣中夾雜著濃烈的硫磺味，嗆得人嗓子發癢。` },
+    { speaker: '系統', text: `我們一行人跟在那個穿著黑色學生裝的年輕人身後，沿著蜿蜒向上的石階前行。這條路兩旁沒有房屋，只有一棵棵掛滿了紅布條的枯樹，在霧氣中張牙舞爪，像是一個個守靈的鬼影。` },
+    { speaker: '系統', text: `走在最前面的學生——李客，心情似乎格外好。` },
+    { speaker: '系統', text: `他雖然腳後跟不著地，整個人像紙鳶一樣飄著走，但他自己顯然沒有察覺。他一邊走，一邊還回過頭，興致勃勃地對著附身在裴得身上的那位「先生」說話：` },
+    { speaker: '林恩', text: `「先生，這條路我熟！當年魏老師就是帶著我從這兒偷偷溜上去測繪地形的。那時候這些樹還沒死呢，魏老師說，這些樹根底下可能埋著村裡的地下水道……」` },
+    { speaker: '系統', text: `說著說著，李客突然停下來，伸手摸了摸自己的脖子，臉上露出一絲困惑的表情，齜牙咧嘴地活動了一下腦袋：` },
+    { speaker: '系統', text: `「嘶……奇怪。今天脖子怎麼這麼僵？像是落枕了一樣，還有點漏風。」` },
+    { speaker: '系統', text: `我不自覺地握緊了手裡的帳本。` },
+    { speaker: '系統', text: `藉著蘇澈手裡那盞昏暗的應急燈，我看得很清楚——李客的脖子上，有一道橫貫咽喉的暗紅色切口。隨著他說話的動作，那切口的皮肉微微翻捲，甚至能看到裡面早已乾涸發黑的氣管。` },
+    { speaker: '系統', text: `那根本不是落枕。那是致命傷。` },
+    { speaker: '系統', text: `但他毫無所覺，依然在那裡扭著那顆搖搖欲墜的腦袋，嘴裡還嘟囔著：「看來以後睡覺不能睡高枕頭，影響腦供血，老師說過這不科學。」` },
+    { speaker: '系統', text: `「別扭了。」` },
+    { speaker: '系統', text: `走在李客身後的「裴得」冷冷地開口。他看著李客脖子上那道猙獰的傷口，藏在袖子裡的手指微微顫抖了一下，但語氣依然嚴厲得像個教官：` },
+    { speaker: '系統', text: `「頸椎神經受損會導致幻痛。集中注意力帶路，別做多餘的動作。」` },
+    { speaker: '李客', text: `「是！先生！」李客立刻立正，不敢再抱怨，乖乖轉過身繼續飄行。` },
+    { speaker: '系統', text: `我看著這一幕，心裡湧起一股說不出的荒謬與悲涼。這個學生到死都在信奉科學，卻不知道自己已經成了最不科學的存在。` },
+    { speaker: '裴得', text: `「林醫生，」前面的「裴得」突然放慢了腳步，和我並肩而行，壓低聲音道，「前面就是『病灶』的核心區了。把你的手術刀拿穩。」` },
+    { speaker: '林恩', text: `「前面有什麼？」我問，同時警惕地觀察四周。` },
+    { speaker: '林恩', text: `「白血球。」他冷笑一聲，用下巴指了指石階的盡頭，「當病毒——也就是我們——入侵人體時，免疫系統就會啟動。這個村子的免疫系統，就是那些『村民』。」` },
+    { speaker: '系統', text: `他的話音剛落，一陣整齊劃一的腳步聲從迷霧深處傳來。` },
+    { speaker: '系統', text: `嗒、嗒、嗒、嗒。` },
+    { speaker: '系統', text: `那聲音不像是活人走路，沒有輕重緩急，每一步都像是精準測量過的機器。` },
+    { speaker: '系統', text: `「趴下！關燈！」` },
+    { speaker: '蘇澈', text: `「裴得」低喝一聲，一把按住我的肩膀，將我拽進了路邊的草叢裡。藍嵐背著昏迷的喬若楠，反應也極快，立刻拉著蘇澈滾進了另一側的陰影中。` },
+    { speaker: '系統', text: `蘇澈慌亂中關掉了應急燈和攝影機的指示燈。` },
+    { speaker: '系統', text: `世界瞬間陷入一片死寂的黑暗。只有那整齊的腳步聲越來越近。` },
+    { speaker: '系統', text: `透過草叢的縫隙，我看見兩排人影從霧中走出。` },
+    { speaker: '系統', text: `那是十幾個穿著清末民初服飾的「村民」。他們手裡提著白色的燈籠，臉上戴著畫有單一表情的面具——清一色的「怒」相。` },
+    { speaker: '系統', text: `他們走得很僵硬，膝蓋幾乎不彎曲。但我驚恐地發現，他們每個人的脖子後面，都連接著一根手指粗細的紅線。那些紅線一直延伸向山頂的黑暗中，就像是……提線木偶。` },
+    { speaker: '系統', text: `「……」` },
+    { speaker: '系統', text: `藍嵐在我對面，死死摀住自己的嘴，眼珠子瞪得快要掉出來。` },
+    { speaker: '系統', text: `這隊巡邏的「村民」在我們藏身的地方停了下來。` },
+    { speaker: '系統', text: `其中一個領頭的「村民」轉動僵硬的脖子，發出喀啦喀啦的聲音。他手裡的燈籠慢慢垂下，朝著藍嵐藏身的草叢照去。` },
+    { speaker: '系統', text: `那燈光慘白，一點點逼近藍嵐露在外面的一隻鞋。` },
+    { speaker: '系統', text: `就在這千鈞一髮之際，一個年輕的聲音突然在路中間響起：` },
+    { speaker: '林恩', text: `「哎呀！我的鋼筆！」` },
+    { speaker: '系統', text: `所有的燈籠瞬間轉向。` },
+    { speaker: '系統', text: `只見李客站在路中間，彎著腰，裝模作樣地在地上摸索著什麼，一邊摸一邊大聲抱怨：` },
+    { speaker: '林恩', text: `「這可是進口的派克鋼筆啊！怎麼掉這兒了？要是丟了，魏老師非罵死我不可！」` },
+    { speaker: '系統', text: `那些「村民」死死盯著李客。` },
+    { speaker: '系統', text: `領頭的「村民」面具下的眼睛轉動了一下，似乎在識別眼前這個東西。` },
+    { speaker: '李客', text: `「……是死人。」那村民發出沙啞的聲音，像是判斷出了李客的成分，「自己人。不管。」` },
+    { speaker: '系統', text: `說完，那隊村民竟然真的收回了目光，繞過李客，繼續像木偶一樣朝山下走去。` },
+    { speaker: '系統', text: `直到腳步聲徹底消失，我才感覺到心臟重新跳動起來。` },
+    { speaker: '系統', text: `李客直起腰，對著我們藏身的地方得意地揮了揮手（手腕處露出了白骨），壓低聲音喊道：` },
+    { speaker: '系統', text: `「先生！沒事了！他們眼神不好，那是王大爺和趙二叔，以前就老眼昏花，沒想到現在還沒治好！」` },
+    { speaker: '系統', text: `我從草叢裡爬出來，看著這個傻學生。他剛才救了我們一命，但他自己似乎完全沒意識到那些「村民」有多危險，還以為那是他認識的鄰居大爺。` },
+    { speaker: '系統', text: `「幹得不錯。」` },
+    { speaker: '裴得', text: `「裴得」從陰影裡走出來，拍了拍身上的泥土。他看著李客的眼神複雜難辨，最後只化作一句淡淡的誇獎。` },
+    { speaker: '李客', text: `「嘿嘿，那是！我機靈著呢！」李客開心地撓撓頭。` },
+    { speaker: '裴得', text: `「繼續走。」裴得沒再多說，只是那隻藏在袖子裡的手，緊緊握住了那把生鏽的止血鉗。` },
+    { speaker: '系統', text: `穿過這條死亡巡邏線，我們終於來到了山頂。` },
+    { speaker: '系統', text: `眼前的景象讓我倒吸一口冷氣。` },
+    { speaker: '系統', text: `這裡是一個巨大的圓形廣場，地面上繪滿了朱砂色的符文。而在廣場的正中央，矗立著一座宏偉卻陰森的大殿——敖家祠堂。` },
+    { speaker: '系統', text: `但最讓人恐懼的不是建築，而是祠堂前那棵巨大的、早已枯死的老槐樹。` },
+    { speaker: '系統', text: `無數根紅線從祠堂內部延伸出來，纏繞在這棵樹上，然後向四面八方發散，覆蓋了整個山下的村莊。` },
+    { speaker: '系統', text: `這棵樹，就是這個村子的神經中樞。` },
+    { speaker: '系統', text: `「到了。」` },
+    { speaker: '裴得', text: `「裴得」站在廣場邊緣，看著那座祠堂，眼底燃燒著冰冷的怒火。` },
+    { speaker: '李客', text: `「李客，」他突然開口，「你在門口守著。」` },
+    { speaker: '李客', text: `「啊？」李客愣了一下，「先生，我不進去嗎？我還要給魏老師送報告呢！」` },
+    { speaker: '裴得', text: `「裡面在進行無菌手術，你身上細菌太多，進去會感染。」裴得撒起謊來面不改色，語氣卻不容置疑，「守在這裡。如果看到剛才那些眼神不好的大爺再回來，就用你的鋼筆……不，就用你的機靈把它們引開。這是命令。」` },
+    { speaker: '系統', text: `李客雖然有些失落，但聽到「命令」二字，還是條件反射地立正敬禮：` },
+    { speaker: '系統', text: `「是！保證完成任務！一隻蒼蠅都不放進去！」` },
+    { speaker: '系統', text: `裴得點了點頭，沒再看他一眼，轉身走向那扇緊閉的朱紅大門。` },
+    { speaker: '林恩', text: `「走吧，」他對我們說道，聲音冷得像冰，「去見見那位主刀醫生。」` },
+    { speaker: '系統', text: `我跟在他身後，經過李客身邊時，忍不住多看了一眼這個學生。` },
+    { speaker: '系統', text: `他孤零零地站在霧氣瀰漫的廣場上，身後是無數根詭異的紅線。他還在對著我們笑，用口型說著「加油」。` },
+    { speaker: '系統', text: `他不知道，這扇門一旦打開，他一直等待的那個「未來」，可能就永遠不會來了。` },
+    { speaker: '藍嵐', text: `「林老闆，」藍嵐背著喬若楠，湊到我耳邊小聲說，「裴少爺……是不是在保護那個鬼學生？」` },
+    { speaker: '系統', text: `我沒有回答，只是推開了那扇沉重的木門。` },
+    { speaker: '系統', text: `吱呀——` },
+    { speaker: '系統', text: `門開了。` },
+    { speaker: '系統', text: `一股濃烈到令人作嘔的腥甜味撲面而來。 大殿內沒有神像。 只有一個穿著華麗祭司長袍、頭髮灰白的老人，正背對著我們，坐在一張由無數紅線編織成的「網」中間。` },
+    { speaker: '系統', text: `那老人手裡拿著一根金針，正在細心地縫補著什麼。` },
+    { speaker: '系統', text: `聽到開門聲，老人的手沒有停，只是發出了一聲蒼老而沙啞的嘆息：` },
+    { speaker: '系統', text: `「一百年了……魏大夫，你還是這麼不懂禮數。進別人的診室，不知道要先敲門嗎？」` },
+    { speaker: '系統', text: `我身邊的「裴得」腳步一頓。` },
+    { speaker: '系統', text: `他緩緩抬起頭，那雙原本屬於裴得的灰色眼睛裡，此刻卻透出了屬於另一個靈魂的、跨越百年的恨意。` },
+    { speaker: '林恩', text: `「苗大巫，」他冷冷地開口，聲音裡帶著金屬般的質感，「你的診室太髒了。我來幫你……徹底消毒。」` },
+    { speaker: '系統', text: `[ 附註：林恩的帳本記錄 ] 項目：敵對目標確認 特徵：老年男性，手持金針，操縱紅線。 身份：裴得身上的靈體稱其為「苗大巫」。看來這就是一切的罪魁禍首。 風險：極高。他似乎一眼就認出了裴得體內的靈魂。這說明……這場醫患糾紛，已經持續了一個世紀。` },
+    { type: 'chapter', text: '第六章：壞死的切口 —— 完結' },
+    { type: 'ledger', title: '[ 帳本紀錄：第六章：壞死的切口 ]', item: '紀錄', target: '無', detail: '點擊以進入下一章。', note: '', nextAction: () => startGame('ch7') }
+];
+
+const chapter7Script = [
+    { type: 'bgm', src: BGM_COURTYARD, title: '第七章：喜喪' },
+    { type: 'v8hud', active: true },
+    { type: 'tint', color: 'darkred' },
+    { type: 'chapter', text: `第七章：喜喪` },
+    { speaker: '系統', text: `[ 影音檔案編號：199X-07-16_DAWN ] 來源： 蘇澈的手持 V8 攝影機 備註： 鏡頭倒在地上，畫面呈45度角傾斜。` },
+    { speaker: '系統', text: `(畫面上是一雙正在抽搐的腳。那雙腳穿著登山靴——是駱安的鞋。)` },
+    { speaker: '系統', text: `一個僵硬、機械，卻帶著哭腔的聲音（駱安）： 「……歡迎光臨……諾家班……今日……戲碼……」` },
+    { speaker: '系統', text: `(一隻手伸進畫面，那隻手的手指已經變成了竹篾，狠狠地掐住了駱安的脖子。)` },
+    { speaker: '裴得', text: `（附身狀態）的聲音： 「閉嘴。你的戲份被刪了。」(一聲骨骼錯位的脆響。)` },
+    { speaker: '系統', text: `【現實時間：敖家祠堂內部】` },
+    { speaker: '系統', text: `厚重的木門在我們身後緩緩合上，切斷了外面的霧氣，也切斷了李客那個傻學生的身影。` },
+    { speaker: '系統', text: `祠堂內的空氣乾燥得令人窒息，瀰漫著一股濃烈到近乎辛辣的藏紅花味。這種香料通常只有一個用途——掩蓋高度腐爛的屍臭。` },
+    { speaker: '藍嵐', text: `「這裡……好紅啊。」藍嵐背著喬若楠，聲音發顫。` },
+    { speaker: '系統', text: `確實很紅。 大殿內沒有點燈，所有的光線都來自於四周牆壁上密密麻麻的紅色蠟燭。而在大殿的正中央，坐著那個正在縫補的老人——苗大巫。` },
+    { speaker: '系統', text: `但他不是一個人。` },
+    { speaker: '系統', text: `在苗大巫的身後，是一尊巨大的、被金箔包裹的「肉身佛」。 那佛像閉著眼，雙手結印，寶相莊嚴。但如果你仔細看，會發現那金箔下的皮膚正在微微起伏——它在呼吸。而在佛像的胸口，插著無數根管子（或者說是血管般的紅線），源源不斷地將某種黑色的液體輸送到大殿的各個角落。` },
+    { speaker: '系統', text: `這就是歲神。或者按身邊這位「裴醫生」的說法——零號病人。` },
+    { speaker: '系統', text: `「苗大巫，」` },
+    { speaker: '系統', text: `被附身的裴得往前走了一步，那雙灰色的眼睛裡沒有恐懼，只有深深的厭惡。他無視了周圍壓抑的氣場，像是在巡視一間不合格的手術室：` },
+    { speaker: '系統', text: `「一百年了。你還在給這具屍體輸血？你難道看不出來，他的細胞已經完全壞死了嗎？你在維持的不是生命，是一塊腫瘤。」` },
+    { speaker: '系統', text: `坐在紅線網中央的老人終於停下了手中的金針。 他緩緩轉過身。那是一張乾枯如樹皮的臉，眼窩深陷，沒有眼白，只有一片漆黑。` },
+    { speaker: '系統', text: `「魏大夫，」老人的聲音像是兩塊骨頭在摩擦，「你還是這麼相信你那些西洋人的歪理。什麼細胞，什麼壞死……」` },
+    { speaker: '系統', text: `老人慈愛地回頭看了一眼那尊恐怖的肉身佛： 「少主他只是睡著了。只要『喜宴』辦得好，只要賓客到齊了，他就會醒過來。」` },
+    { speaker: '林恩', text: `「賓客？」我敏銳地抓住了這個詞，手裡的帳本早已換成了手術刀。` },
+    { speaker: '林恩', text: `「是啊，今天的賓客有點少。」老人嘆了口氣，那雙漆黑的眼睛掃過我們，「不過沒關係，我們有新的『幫手』了。」` },
+    { speaker: '系統', text: `老人抬起枯瘦的手，輕輕拍了拍巴掌。` },
+    { speaker: '系統', text: `啪、啪。` },
+    { speaker: '系統', text: `「出來吧，給貴客上茶。」` },
+    { speaker: '系統', text: `大殿深處的陰影裡，傳來了沉重的腳步聲。 那腳步聲我很熟悉。沉穩、有力，那是常年跑江湖的人才有的步伐。` },
+    { speaker: '系統', text: `一個人影端著一個紅色的漆盤，從陰影裡走了出來。` },
+    { speaker: '蘇澈', text: `「駱班主！」蘇澈驚喜地喊了一聲。` },
+    { speaker: '系統', text: `走出來的正是失蹤的駱安。 但他沒有回應蘇澈。` },
+    { speaker: '系統', text: `駱安穿著一身不合身的、清朝樣式的馬褂（像是壽衣），臉上塗著兩坨豔俗的胭脂，嘴角被用紅線向上勾起，縫成了一個永久的微笑。` },
+    { speaker: '系統', text: `他的眼神是清醒的。 我看得很清楚，那雙眼睛裡充滿了恐懼、絕望和掙扎。眼淚正順著他的臉頰不停地往下流，沖淡了臉上的胭脂。` },
+    { speaker: '系統', text: `但他控制不了自己的身體。` },
+    { speaker: '系統', text: `「歡……迎……」` },
+    { speaker: '系統', text: `駱安的嘴巴一張一合，發出的聲音機械而僵硬，像是喉嚨裡卡著異物：` },
+    { speaker: '系統', text: `「請……喝……喜……酒……」` },
+    { speaker: '系統', text: `他端著盤子一步步走向我們。盤子裡放的不是茶，而是一把把鋒利的剔骨刀。` },
+    { speaker: '藍嵐', text: `「駱哥！」藍嵐急了，想要衝上去，「你在幹什麼啊！我是藍嵐啊！」` },
+    { speaker: '系統', text: `「別過去！」` },
+    { speaker: '系統', text: `身邊的「裴得」厲聲喝止，「看他的關節！」` },
+    { speaker: '系統', text: `我定睛一看，頓時頭皮發麻。 駱安的手肘、膝蓋、甚至是手指關節處，都鑽出了紅色的菌絲。那些菌絲像是有生命的肌腱一樣，強行拉扯著他的骨骼，操縱著他的每一個動作。` },
+    { speaker: '系統', text: `他已經成了這個村子的「白血球」——一個力大無窮、擁有自我意識卻無法反抗的超級傀儡。` },
+    { speaker: '林恩', text: `「殺……了……我……」` },
+    { speaker: '系統', text: `駱安走到離我們五步遠的地方，突然停住了。他渾身劇烈地顫抖，那是他的意志在和體內的菌絲對抗。他看著我們，眼淚決堤般湧出，用盡全身力氣擠出了這三個字：` },
+    { speaker: '林恩', text: `「快……跑……我……控制……不……住……」` },
+    { speaker: '系統', text: `下一秒，苗大巫手中的金針微微一挑。` },
+    { speaker: '系統', text: `崩！` },
+    { speaker: '系統', text: `駱安體內發出一聲琴弦崩斷般的脆響。他眼裡的掙扎瞬間消失，取而代之的是一片死寂的空洞。` },
+    { speaker: '系統', text: `「吼——！！」` },
+    { speaker: '系統', text: `駱安發出一聲野獸般的嘶吼，將手中的漆盤狠狠砸向我們，隨後像一輛失控的坦克，揮舞著那雙足以開碑裂石的拳頭，朝著我們——或者說是朝著背著喬若楠的藍嵐衝了過來！` },
+    { speaker: '系統', text: `「該死！」` },
+    { speaker: '駱安', text: `「裴得」罵了一句髒話（聽起來很像德語）。他那副瘦弱的身體根本擋不住駱安的衝撞。` },
+    { speaker: '藍嵐', text: `「藍嵐！躲開！」我大吼一聲，將手中的手術刀當作飛刀甩了出去，直奔駱安的大腿。` },
+    { speaker: '系統', text: `手術刀精準地刺入了駱安的大腿肌肉，但他像是毫無痛覺一樣，速度絲毫不減。` },
+    { speaker: '系統', text: `「砰！」` },
+    { speaker: '系統', text: `一聲巨響。藍嵐雖然極力閃避，但還是被駱安一拳擦中了肩膀。整個人連同背上的喬若楠一起飛了出去，重重地撞在牆上。` },
+    { speaker: '蘇澈', text: `「若楠！」蘇澈尖叫著撲過去護住弟弟。` },
+    { speaker: '系統', text: `而駱安已經轉過身，面帶微笑（那是被縫起來的笑），舉起拳頭，對準了地上的蘇澈。` },
+    { speaker: '系統', text: `「免疫反應太強了。」` },
+    { speaker: '裴得', text: `「裴得」冷靜地從懷裡掏出那瓶剩下的酒精和打火機，轉頭看向我，語氣快得像機關槍：` },
+    { speaker: '林恩', text: `「林醫生，不管是古董商還是密醫，你現在必須當一名麻醉師。我需要三分鐘時間去處理那個老東西（苗大巫），在這之前，你必須讓這個大塊頭『鎮靜』下來。」` },
+    { speaker: '系統', text: `我看著那個狂暴的駱安，又看了看自己手裡僅剩的一把備用手術刀，感到一陣絕望。` },
+    { speaker: '系統', text: `「怎麼鎮靜？他現在感覺不到痛！」` },
+    { speaker: '裴得', text: `「切斷神經。」裴得指了指自己的後頸，「脊椎第三節和第四節之間。那是控制中樞。別殺了他，他還有救——只要你能切斷那是菌絲的連接點。」` },
+    { speaker: '系統', text: `這簡直是瘋了。 在一個發狂的壯漢手下，用一把小刀去做脊椎手術？` },
+    { speaker: '系統', text: `但看著駱安那雙流淚的眼睛，我知道我沒得選。` },
+    { speaker: '藍嵐', text: `「藍嵐！」我咬牙喊道，「別裝死了！起來抱住他！不想讓駱班主變成殺人犯，就給我死死抱住他！」` },
+    { speaker: '系統', text: `牆角的藍嵐吐了一口帶血的唾沫，眼神一狠，發出一聲怒吼，不顧肩膀的劇痛，猛地撲上去，從背後死死鎖住了駱安的雙臂。` },
+    { speaker: '林恩', text: `「林老闆！快動手！我撐不了多久！！」` },
+    { speaker: '系統', text: `我看準時機，握緊手術刀，衝了上去。` },
+    { speaker: '系統', text: `而另一邊，「裴得」整理了一下衣領，拿著那把生鏽的止血鉗，像個走向演講台的紳士一樣，一步步走向了紅線網中央的苗大巫。` },
+    { speaker: '系統', text: `「好了，敘舊結束。」` },
+    { speaker: '系統', text: `他的聲音在空曠的大殿裡迴盪，帶著金屬般的寒意：` },
+    { speaker: '林恩', text: `「苗老頭，當年的那台手術還沒做完。現在，我們來把它做完吧。」` },
+    { speaker: '系統', text: `[ 附註：林恩的帳本記錄 ] 項目：突發狀況 對象：駱安（原諾家班班主） 狀態：被真菌深度寄生，轉化為「免疫細胞（打手）」。保留部分意識，極度痛苦。 對策：物理麻醉（切斷神經）。 代價：我的手術刀快用完了。穆少爺，這得加錢。` },
+    { type: 'chapter', text: '第七章：喜喪 —— 完結' },
+    { type: 'ledger', title: '[ 帳本紀錄：第七章：喜喪 ]', item: '紀錄', target: '無', detail: '點擊以進入下一章。', note: '', nextAction: () => startGame('ch8') }
+];
+
+const chapter8Script = [
+    { type: 'bgm', src: BGM_COURTYARD, title: '第八章：金箔下的心跳' },
+    { type: 'v8hud', active: true },
+    { type: 'tint', color: 'darkred' },
+    { type: 'chapter', text: `第八章：金箔下的心跳` },
+    { speaker: '系統', text: `[ 影音檔案編號：199X-07-16_FINAL_ACT ] 來源： 蘇澈的手持 V8 攝影機 備註： 畫面極度清晰，但拍攝者似乎手抖得厲害。` },
+    { speaker: '系統', text: `(鏡頭對準了那尊巨大的肉身佛。佛像胸口的金箔正在龜裂，發出像蛋殼破碎一樣的聲音。)` },
+    { speaker: '系統', text: `(裂縫中沒有流血，而是滲出了黑色的泥漿。泥漿中混雜著無數根白色的水仙花根莖。)` },
+    { speaker: '系統', text: `一個嘶啞、彷彿來自地底的聲音（從佛像內部傳出）： 「……痛……」` },
+    { speaker: '系統', text: `(鏡頭猛地轉向側面，拍到「裴得」正跪在地上，雙手捧著一堆從佛像裡掏出來的爛肉，臉上卻帶著釋然的笑。)` },
+    { speaker: '裴得', text: `（魏天縱）： 「忍一忍。這是最後一刀了。」【現實時間：敖家祠堂】` },
+    { speaker: '藍嵐', text: `「藍嵐！鎖住他的關節！別讓他轉身！」` },
+    { speaker: '系統', text: `我大吼著，手裡緊握著那把備用的手術刀，在昏暗的燭光下尋找著下刀的位置。` },
+    { speaker: '系統', text: `前方，兩個如同野獸般的身影正在糾纏。` },
+    { speaker: '系統', text: `藍嵐雖然受了傷，但他在求生本能和「不想傷害朋友」的矛盾爆發下，爆發出了驚人的蠻力。他像一隻棕熊一樣從背後死死箍住駱安的雙臂，雙腿絞住駱安的腰，試圖用體重將這個失控的傀儡壓倒在地。` },
+    { speaker: '系統', text: `「吼——！！」` },
+    { speaker: '系統', text: `駱安發出非人的咆哮。他臉上的胭脂已經被眼淚和汗水糊成了一團，那兩條用紅線縫出來的「微笑嘴角」因為過度張開而崩裂，鮮血順著下巴滴在藍嵐的手臂上。` },
+    { speaker: '系統', text: `他的力量大得嚇人。那是一種完全無視肌肉撕裂、無視骨骼承受極限的機械力量。` },
+    { speaker: '藍嵐', text: `「林老闆！！」藍嵐滿臉漲紅，青筋暴起，「我不行了！他的骨頭在響！再不切……我就要被他甩出去了！」` },
+    { speaker: '系統', text: `「堅持住！」` },
+    { speaker: '系統', text: `我看準時機，一個滑步衝到駱安身後。` },
+    { speaker: '系統', text: `那個附身在裴得身上的「醫生」說過——脊椎第三節和第四節之間。` },
+    { speaker: '系統', text: `我伸出左手，按住駱安後頸那塊冰冷、僵硬的皮膚。指尖傳來的觸感不像是人體，倒像是一塊發霉的木頭，皮下隱約有什麼東西在蠕動。` },
+    { speaker: '系統', text: `就是這裡。` },
+    { speaker: '系統', text: `「對不起了，駱班主。」` },
+    { speaker: '系統', text: `我咬緊牙關，手中的手術刀狠狠刺了下去！` },
+    { speaker: '系統', text: `噗嗤。` },
+    { speaker: '系統', text: `刀鋒入肉的聲音異常沉悶。沒有鮮血噴湧，傷口裡流出的竟然是一股白色的漿液，帶著濃烈的蘑菇味。` },
+    { speaker: '系統', text: `駱安劇烈地掙扎起來，差點將藍嵐甩脫。` },
+    { speaker: '林恩', text: `「別動！」我額頭全是冷汗，刀尖在皮肉下艱難地摸索。` },
+    { speaker: '系統', text: `在那層層疊疊的白色菌絲包裹中，我終於觸碰到了一根堅韌的、像是釣魚線一樣的東西——那是被菌絲替換的中樞神經，也是控制這具軀殼的「提線」。` },
+    { speaker: '系統', text: `「斷！」` },
+    { speaker: '系統', text: `我手腕一翻，刀鋒橫切。` },
+    { speaker: '系統', text: `嘣！` },
+    { speaker: '系統', text: `一聲琴弦斷裂般的脆響在駱安的頸椎深處響起。` },
+    { speaker: '系統', text: `上一秒還在瘋狂掙扎的駱安，就像是被拔掉了電源的機器，瞬間失去了所有的力量。` },
+    { speaker: '系統', text: `他那雙充滿恐懼和痛苦的眼睛猛地翻白，龐大的身軀軟軟地倒了下去，重重地壓在藍嵐身上。` },
+    { speaker: '系統', text: `「呼……呼……」` },
+    { speaker: '系統', text: `藍嵐推開昏迷的駱安，大口大口地喘著粗氣，整個人像是從水裡撈出來的一樣：「活……活下來了……他沒死吧？」` },
+    { speaker: '系統', text: `我探了探駱安的鼻息，又檢查了傷口：「暫時癱瘓了。那些菌絲正在修復切口，但在它們接好之前，他動不了。算是強效麻醉。」` },
+    { speaker: '系統', text: `我癱坐在地上，手還在止不住地發抖。這是我這輩子做過最瘋狂的手術。` },
+    { speaker: '系統', text: `而在大殿的另一端，另一場更加凶險的「手術」才剛剛開始。` },
+    { speaker: '系統', text: `「精彩。」` },
+    { speaker: '系統', text: `坐在紅線網中央的苗大巫，看著倒下的駱安，臉上沒有絲毫惋惜，反而發出了乾澀的笑聲：「魏大夫，你的刀法還是這麼準。一百年前，你也是這樣切開了那具屍體……想向我證明人死不能復生。」` },
+    { speaker: '裴得', text: `「裴得」整理了一下凌亂的衣袖，手裡拿著那把生鏽的止血鉗，一步步走向神壇。` },
+    { speaker: '系統', text: `他走得很慢，每一步都踩在那些地磚的縫隙上，彷彿那是某種安全區。` },
+    { speaker: '林恩', text: `「苗老頭，」他的聲音冷靜得可怕，「一百年前我沒做完那台手術，是因為你把我的手給廢了。但今天不一樣。」` },
+    { speaker: '系統', text: `他舉起手中的止血鉗，指著苗大巫身後那尊巨大的肉身佛：` },
+    { speaker: '林恩', text: `「今天，我是來給這位『病人』辦理出院手續的。」` },
+    { speaker: '系統', text: `聽到這話，苗大巫那張枯樹皮般的臉上，突然露出了一種極度扭曲的憤怒。` },
+    { speaker: '系統', text: `「出院？！」` },
+    { speaker: '系統', text: `老人的聲音變得尖利刺耳，手裡的金針猛地一揮。` },
+    { speaker: '系統', text: `咻——！` },
+    { speaker: '系統', text: `大殿四周的無數根紅線瞬間繃緊，發出令人牙酸的嗡鳴聲。` },
+    { speaker: '系統', text: `「他是神！是歲神！他在這裡受萬人香火，永生不滅！你要帶他去哪？！去你那個冰冷的手術台上被切成碎塊嗎？！」` },
+    { speaker: '系統', text: `隨著老人的咆哮，那尊金色的肉身佛胸口突然劇烈起伏了一下。` },
+    { speaker: '系統', text: `咚。` },
+    { speaker: '系統', text: `一聲沉悶的心跳聲，在大殿裡炸響。` },
+    { speaker: '系統', text: `我感覺心臟猛地一縮，喉嚨裡湧起一股腥甜味。藍嵐和蘇澈更是痛苦地捂住了胸口。` },
+    { speaker: '系統', text: `這聲音不是聽見的，是直接震動在骨頭裡的。` },
+    { speaker: '系統', text: `「永生？」` },
+    { speaker: '裴得', text: `「裴得」站在紅線陣前，面對那恐怖的聲波壓迫，竟一步未退。他看著那尊肉身佛，眼底閃過一絲極深的悲哀。` },
+    { speaker: '系統', text: `「你管這叫永生？」` },
+    { speaker: '系統', text: `他指著佛像胸口那些插滿的管子，聲音顫抖： 「你看著他。苗司，你睜開你的瞎眼看看他！」` },
+    { speaker: '系統', text: `「他的皮膚已經鈣化，內臟早就爛成了泥。他的靈魂被你困在這具腐爛的籠子裡，每一分每一秒都在尖叫著想死！這不是永生……這是凌遲！」` },
+    { speaker: '系統', text: `「閉嘴！！」` },
+    { speaker: '系統', text: `苗大巫瘋狂地揮舞雙手，無數紅線如毒蛇般朝著「裴得」射去。` },
+    { speaker: '林恩', text: `「小心！」我下意識地喊道。` },
+    { speaker: '系統', text: `但「裴得」沒有躲。 他站在原地，突然從懷裡掏出了一樣東西——那是李客交給他的、那團已經碳化的「報告」。` },
+    { speaker: '系統', text: `他將那團黑灰猛地灑向空中。` },
+    { speaker: '李客', text: `「李客！擋住！」` },
+    { speaker: '系統', text: `呼——！` },
+    { speaker: '系統', text: `奇蹟發生了。 那團原本毫無用處的灰燼，在接觸到紅線的瞬間，竟然爆發出一股肉眼可見的青色磷火。` },
+    { speaker: '系統', text: `那些勢不可擋的紅線碰到磷火，就像是遇到了天敵，紛紛捲曲、退縮，發出滋滋的燒焦聲。` },
+    { speaker: '系統', text: `「什麼？！」苗大巫大驚失色，「這是什麼妖術？！」` },
+    { speaker: '系統', text: `「這不是妖術。」` },
+    { speaker: '裴得', text: `「裴得」趁著紅線退縮的空檔，一個箭步衝上了神壇。他手中的止血鉗在燭光下閃爍著寒光。` },
+    { speaker: '系統', text: `「這是磷。白磷和骨粉的混合物。」` },
+    { speaker: '系統', text: `他跳上神台，一腳踢翻了供桌上的香爐。` },
+    { speaker: '系統', text: `「這是那個傻學生，用自己的骨頭和命換來的『樣本』。一百年了，這把火，終於燒起來了。」` },
+    { speaker: '系統', text: `「不——！！」苗大巫發出淒厲的慘叫，想要撲過來阻止，但已經太遲了。` },
+    { speaker: '裴得', text: `「裴得」已經站在了肉身佛的面前。` },
+    { speaker: '系統', text: `他看著那張貼滿金箔、閉目垂簾的臉——那是他曾經的朋友，也是這場百年噩夢的源頭，敖羅。` },
+    { speaker: '敖羅', text: `「敖羅，」` },
+    { speaker: '裴得', text: `「裴得」的聲音變得無比溫柔，就像是在喚醒一個賴床的老友。他伸出手，輕輕撫摸著佛像冰冷的臉頰：` },
+    { speaker: '系統', text: `「睡太久了。該醒了。」` },
+    { speaker: '系統', text: `下一秒，他的眼神驟然變冷。 手中的止血鉗高高舉起，對準了肉身佛胸口那根最粗的、連接著心臟的主動脈紅線。` },
+    { speaker: '系統', text: `「手術開始。」` },
+    { speaker: '系統', text: `噗嗤！` },
+    { speaker: '系統', text: `止血鉗狠狠刺入金箔。 黑色的血漿噴湧而出，濺了「裴得」一身。` },
+    { speaker: '系統', text: `「啊啊啊啊啊——！！」` },
+    { speaker: '系統', text: `一聲非人的尖叫從肉身佛的口中爆發出來。那不是神諭，那是一個被囚禁了百年的靈魂，在劇痛中發出的、混雜著解脫的哭號。` },
+    { speaker: '系統', text: `整個祠堂開始劇烈搖晃，頭頂的瓦片紛紛落下。` },
+    { speaker: '系統', text: `「林醫生！」` },
+    { speaker: '裴得', text: `「裴得」在黑血中回過頭，對著我看傻了眼的方向大吼：` },
+    { speaker: '喬若楠', text: `「帶上那個唱戲的（喬若楠）！去後面！找陣眼！這裡我撐著！去把那個真正的『祭品』放出來！！」` },
+    { speaker: '林恩', text: `「真正的祭品？」我愣了一下。` },
+    { speaker: '顧影', text: `「那個穿嫁衣的！」他吼道，聲音裡帶著一絲哽咽，「去把顧影找出來！只有他能讓這瘋子徹底斷氣！！」` },
+    { speaker: '系統', text: `我雖然不知道顧影是誰，但我聽懂了「穿嫁衣」這三個字。` },
+    { speaker: '蘇澈', text: `「藍嵐！背上若楠！蘇澈，扶著駱班主！我們走！」` },
+    { speaker: '系統', text: `我從地上爬起來，在崩塌的煙塵中，帶著這支傷痕累累的隊伍，衝向了神壇後方的黑暗深處。` },
+    { speaker: '系統', text: `而在我們身後，「裴得」一個人站在搖搖欲墜的神壇上，手裡死死抓著那根血管，與那個瘋狂的苗大巫，以及那個正在甦醒的「神」，對峙在一起。` },
+    { speaker: '系統', text: `[ 附註：林恩的帳本記錄 ] 項目：緊急撤離 狀況：祠堂結構崩塌，神像活化。 關鍵情報：裴得體內的靈魂似乎準備同歸於盡。他提到的「顧影」，應該就是百年前那個讓喬若楠一直喊著「少爺」的真正主人。 疑問：為什麼一個祭品，能殺死神？` },
+    { type: 'chapter', text: '第八章：金箔下的心跳 —— 完結' },
+    { type: 'ledger', title: '[ 帳本紀錄：第八章：金箔下的心跳 ]', item: '紀錄', target: '無', detail: '點擊以進入下一章。', note: '', nextAction: () => startGame('ch9') }
+];
+
+const chapter9Script = [
+    { type: 'bgm', src: BGM_COURTYARD, title: '第九章：紙做的牢籠' },
+    { type: 'v8hud', active: true },
+    { type: 'tint', color: 'normal' },
+    { type: 'chapter', text: `第九章：紙做的牢籠` },
+    { speaker: '系統', text: `[ 影音檔案編號：199X-07-16_03:15 ] 來源： 蘇澈的手持 V8 攝影機 備註： 畫面在劇烈晃動後趨於靜止。鏡頭似乎被放在了某個佈滿灰塵的窗台上。` },
+    { speaker: '系統', text: `(鏡頭對準了一片漆黑的庭院。庭院裡沒有紅線，只有滿地的白色野花，在月光下發出幽幽的紫光。)` },
+    { speaker: '蘇澈', text: `（畫外音，極度壓抑的喘息）： 「……這裡不一樣。這裡沒有那種……屍體的臭味。這裡很香。」(鏡頭緩慢移動，拍到了一扇貼著雙喜字的木門。那「喜」字不是紅色的，而是白色的。)` },
+    { speaker: '林恩', text: `（聲音冷靜，但帶著一絲疑惑）： 「這不是給神住的地方。這是給人住的。」【現實時間：敖家祠堂後殿】` },
+    { speaker: '系統', text: `身後的大殿傳來陣陣轟鳴，那是「裴得」與那個瘋狂大巫鬥法的聲音。但我不敢回頭。` },
+    { speaker: '系統', text: `「這邊！走這邊！」` },
+    { speaker: '系統', text: `我手裡握著那把僅剩的手術刀，藉著蘇澈攝像機微弱的螢幕光，在黑暗的回廊中狂奔。` },
+    { speaker: '系統', text: `空氣裡的硫磺味和血腥味逐漸淡去，取而代之的是一股陰冷的潮氣。這裡的建築結構比前殿更加狹窄、曲折，像是一條條盤繞的蛇腹。` },
+    { speaker: '系統', text: `「呼……呼……林老闆……」` },
+    { speaker: '系統', text: `藍嵐背著昏迷的喬若楠跟在後面，腳步沉重。剛才那場搏鬥讓他受傷不輕，再加上還要顧及背上的人，他的呼吸像破風箱一樣粗重。` },
+    { speaker: '系統', text: `蘇澈則攙扶著暫時癱瘓的駱安（現在只能算是一具沉重的肉體），走得跌跌撞撞。` },
+    { speaker: '林恩', text: `「別停下。」我低聲喝道，同時警惕地觀察著四周。` },
+    { speaker: '系統', text: `奇怪的是，自從衝過那道神壇的屏風後，那些無處不在、令人窒息的紅線竟然消失了。` },
+    { speaker: '系統', text: `沒有紅線，沒有掛在樑上的「腸子」，也沒有那些詭異的紙紮人。 這條通往後院的回廊乾淨得不可思議，地上甚至鋪著講究的青磚，磚縫裡沒有血跡，只有生長得有些狂野的青苔。` },
+    { speaker: '蘇澈', text: `「這地方……怎麼感覺像是另一個世界？」蘇澈小聲嘀咕道，鏡頭掃過牆壁。` },
+    { speaker: '系統', text: `牆上掛著幾幅字畫，雖然紙張已經發黃脆裂，但依稀能看出是些山水花鳥，落款處蓋著雅致的印章。這裡不像是一個關押祭品的牢籠，倒更像是一個富貴人家的後宅書房。` },
+    { speaker: '系統', text: `「小心腳下。」` },
+    { speaker: '系統', text: `我跨過一道高高的門檻，眼前豁然開朗。` },
+    { speaker: '系統', text: `我們來到了一個封閉的小庭院。 庭院不大，四周被高牆圍死，連窗戶都封上了鐵柵欄。而在庭院的正中央，種滿了一種奇特的花。` },
+    { speaker: '系統', text: `那些花有著紫色的花瓣，花蕊卻是黑色的，在微弱的星光下，像是一隻隻睜開的眼睛。` },
+    { speaker: '林恩', text: `「這是……曼陀羅？」我作為遊方郎中，對草藥略知一二，「這種花有劇毒，能致幻。別碰到它們。」` },
+    { speaker: '藍嵐', text: `「林老闆，你看那邊。」藍嵐喘著氣，用下巴指了指庭院盡頭。` },
+    { speaker: '系統', text: `花海的深處，孤零零地立著一間廂房。 房門緊閉，門上貼著一副對聯。字跡已經模糊不清，但橫批上的那兩個字卻是用金粉寫的，至今沒有褪色：` },
+    { speaker: '系統', text: `【鎖春】` },
+    { speaker: '裴得', text: `「鎖春……」我唸著這兩個字，心裡升起一股莫名的寒意，「那個『裴得』說的陣眼，應該就在這裡面。」` },
+    { speaker: '系統', text: `我們小心翼翼地穿過花海，來到門前。` },
+    { speaker: '系統', text: `門沒有上鎖。或者說，鎖早就壞了。那把銅鎖掛在門環上，輕輕一碰就掉在地上，發出一聲悶響。` },
+    { speaker: '系統', text: `我深吸一口氣，用手術刀抵開了門縫。` },
+    { speaker: '系統', text: `吱呀——` },
+    { speaker: '系統', text: `陳舊的木門發出呻吟，一股濃郁到近乎窒息的花香撲面而來。` },
+    { speaker: '系統', text: `屋內沒有點燈。蘇澈舉起攝影機，利用夜視模式的綠光向內掃描。` },
+    { speaker: '系統', text: `這是一間佈置得極為奢華的臥房。 雕花的架子床，紫檀木的桌椅，地上甚至鋪著來自波斯的羊毛地毯（雖然已經被蟲蛀得不成樣子）。` },
+    { speaker: '系統', text: `而在那張巨大的架子床上，坐著一個人。` },
+    { speaker: '蘇澈', text: `「有人！」蘇澈嚇得手一抖，鏡頭差點掉地上。` },
+    { speaker: '系統', text: `藍嵐立刻側身，將背上的喬若楠護在身後，警惕地盯著那個方向。` },
+    { speaker: '系統', text: `我瞇起眼睛，壯著膽子走了進去。` },
+    { speaker: '系統', text: `那個人影一動不動。 隨著距離拉近，我看清了。` },
+    { speaker: '系統', text: `那不是活人。 那是一具早已風乾、卻被保存得極為完好的乾屍。` },
+    { speaker: '系統', text: `他（從骨架和喉結看，這是個男性）穿著一身繁複的大紅嫁衣，頭上戴著沉重的鳳冠，端端正正地坐在床沿。他的雙手交疊在膝蓋上，手裡似乎握著什麼東西。` },
+    { speaker: '系統', text: `這應該就是那個附身者口中的「真正的祭品」。` },
+    { speaker: '系統', text: `我下意識地回頭看了一眼藍嵐背上的喬若楠。 之前在大殿裡，喬若楠化妝後的樣子確實驚艷，那是一種柔美的、偏向女性化的戲曲之美。` },
+    { speaker: '系統', text: `但眼前這具乾屍……哪怕已經變成了枯骨，哪怕眼窩深陷，我依然能感受到一種完全不同的氣質。` },
+    { speaker: '系統', text: `他的骨架比喬若楠更寬大一些，肩膀平直。即使在死後，他的脊椎依然挺得筆直，帶著一股子寧折不彎的英氣。` },
+    { speaker: '系統', text: `而在那乾枯的頭骨上，依然附著著一些沒有腐爛的頭髮。 那是金色的。 不是染出來的顏色，而是天生的、如同黃金般的蜷曲長髮，此刻雖然失去了光澤，卻依然倔強地披散在紅色的嫁衣上。` },
+    { speaker: '藍嵐', text: `「外國人？」藍嵐探頭看了一眼，驚訝地小聲說道，「這頭髮怎麼是黃的？這祭品是個洋人？」` },
+    { speaker: '林恩', text: `「不一定是洋人。」我湊近觀察，「骨相深邃，眉弓很高，可能是混血，或者是西域那邊的人。」` },
+    { speaker: '系統', text: `這和喬若楠那種典型的東方戲曲長相截然不同。如果說喬若楠是江南煙雨裡的白玉蘭，那這位，就像是生長在懸崖邊帶刺的紫色曼陀羅。` },
+    { speaker: '系統', text: `根本不可能認錯。` },
+    { speaker: '蘇澈', text: `「林老闆，你看他的手。」蘇澈突然說道。` },
+    { speaker: '系統', text: `我順著視線看去。 這具乾屍的手並不是自然下垂的。他的雙手交疊，手腕處被一根極粗的紅線死死綁在一起，紅線的另一端連接著床頭的柱子。` },
+    { speaker: '系統', text: `而在他的掌心裡，緊緊攥著一樣東西。 因為手指已經僵硬碳化，我看不清那是什麽。` },
+    { speaker: '系統', text: `「得罪了。」` },
+    { speaker: '系統', text: `我低聲說了一句，試圖掰開乾屍的手指。 但他抓得太緊了。哪怕過了一百年，這股執念依然鎖死了他的關節。` },
+    { speaker: '林恩', text: `「這……掰不開啊。」我皺眉。` },
+    { speaker: '系統', text: `就在這時，外面的轟鳴聲突然停了。 隨之而來的，是一聲撕心裂肺的、屬於那個大巫苗司的怒吼，那聲音穿透了層層牆壁，帶著無盡的恐慌傳了過來：` },
+    { speaker: '系統', text: `「不許碰他！！！誰也不許碰他！！」` },
+    { speaker: '系統', text: `緊接著，整個地面開始劇烈震動。 庭院裡那些紫色的花突然開始瘋狂生長，無數根藤蔓像觸手一樣從窗戶、門縫裡鑽了進來，目標直指床上的這具乾屍！` },
+    { speaker: '藍嵐', text: `「不好！那老頭發現我們了！」藍嵐大喊。` },
+    { speaker: '林恩', text: `「快！找東西砍斷這些藤蔓！」我急得滿頭大汗。` },
+    { speaker: '系統', text: `蘇澈慌亂中把癱瘓的駱安放在牆角，舉起攝影機想幫忙，卻不知從何下手。` },
+    { speaker: '系統', text: `就在這混亂中，一直昏迷不醒的喬若楠，突然動了。` },
+    { speaker: '系統', text: `他從藍嵐的背上滑落下來，跌跌撞撞地走向那張架子床。 此時的他，臉上的妝已經花了，眼神依然渙散，處於那種半夢半醒的游離狀態。` },
+    { speaker: '系統', text: `但他沒有理會那些瘋狂逼近的藤蔓。 他只是癡癡地看著床上那具穿著嫁衣的金色長髮乾屍。` },
+    { speaker: '喬若楠', text: `「……不一樣。」 喬若楠突然開口了。聲音很輕，卻很清晰。` },
+    { speaker: '系統', text: `他伸出那隻保養得極好的、唱戲的手，輕輕撫摸上乾屍那枯槁的臉頰。` },
+    { speaker: '系統', text: `「少爺畫的……不是這樣的。」` },
+    { speaker: '系統', text: `喬若楠喃喃自語，似乎透過這具乾屍，看到了一百年前某個鮮活的靈魂。` },
+    { speaker: '系統', text: `隨著他的觸碰，神奇的一幕發生了。 那具死死攥著拳頭的乾屍，手指竟然鬆動了一下。` },
+    { speaker: '系統', text: `啪嗒。` },
+    { speaker: '系統', text: `一樣東西從乾屍的手中滑落，掉在了地毯上。` },
+    { speaker: '系統', text: `我眼疾手快，一把抄起那樣東西。 那是一把老式的、西醫用的柳葉刀。刀柄上刻著一行細小的外文（或是拼音縮寫），雖然磨損嚴重，但依稀能辨認出是：W. T.` },
+    { speaker: '系統', text: `而在刀刃上，還殘留著早已乾涸的黑褐色痕跡——那是血。` },
+    { speaker: '系統', text: `「這是……」` },
+    { speaker: '系統', text: `我握著這把刀，腦海中突然閃過一個大膽的念頭。 這個祭品，直到死前最後一刻，手裡都握著武器。他不是被動地被獻祭，他是帶著刀坐上這張床的。` },
+    { speaker: '系統', text: `他是想自殺？還是想……反殺？` },
+    { speaker: '藍嵐', text: `「林老闆！藤蔓進來了！」藍嵐驚恐地尖叫。` },
+    { speaker: '系統', text: `無數紫色的藤蔓如潮水般湧入，瞬間纏住了架子床的四角，試圖將這具乾屍拖入地下。` },
+    { speaker: '系統', text: `「不能讓他們帶走他！」` },
+    { speaker: '系統', text: `我不知哪來的勇氣，或許是被這具乾屍那股至死方休的氣勢感染了。 我舉起手中那把剛撿來的、百年前的柳葉刀，對著束縛住乾屍手腕的那根粗壯紅線，狠狠揮了下去。` },
+    { speaker: '系統', text: `「既然你想握著刀……那就自由地握著吧！」` },
+    { speaker: '系統', text: `崩——！` },
+    { speaker: '系統', text: `那根困了一百年的紅線，應聲而斷。` },
+    { speaker: '系統', text: `[ 附註：林恩的帳本記錄 ] 項目：重要證物 名稱：刻有 W.T. 的柳葉刀 來源：後殿乾屍手中 特徵：乾屍為異族男性（金髮），與喬若楠外貌無相似處。 推測：這把刀是那位「裴醫生」（W.T.）留給他的？還是他偷來的？為什麼他死的時候，手裡握著的是愛人的手術刀？` },
+    { type: 'chapter', text: '第九章：紙做的牢籠 —— 完結' },
+    { type: 'ledger', title: '[ 帳本紀錄：第九章：紙做的牢籠 ]', item: '紀錄', target: '無', detail: '點擊以進入下一章。', note: '', nextAction: () => startGame('ch10') }
+];
+
+const chapter10Script = [
+    { type: 'bgm', src: BGM_COURTYARD, title: '第十章：未完成的處方' },
+    { type: 'v8hud', active: true },
+    { type: 'tint', color: 'darkred' },
+    { type: 'chapter', text: `第十章：未完成的處方` },
+    { speaker: '系統', text: `[ 影音檔案編號：199X-07-16_BURNING ] 來源： 蘇澈的手持 V8 攝影機 備註： 畫面充滿了紅色的火光。鏡頭在奔跑中劇烈顛簸。` },
+    { speaker: '系統', text: `(嘈雜的背景音中，傳來木材斷裂的巨響。)` },
+    { speaker: '喬若楠', text: `（哭腔，聲音極度虛弱）： 「哥……我怕痛……但我更怕那東西（指身後的某物）追出來……帶著他（乾屍）走！快走啊！」(鏡頭被火光吞沒，最後一幀定格在喬若楠滿是淚痕、卻在此刻異常堅定的臉上。)` },
+    { speaker: '系統', text: `【現實時間：後殿「鎖春」廂房】` },
+    { speaker: '系統', text: `崩！` },
+    { speaker: '系統', text: `那根困住了乾屍百年的紅線，在我手中應聲而斷。` },
+    { speaker: '系統', text: `這一刀下去，就像是切斷了某種看不見的血管。整個房間裡的氣壓瞬間驟變。那些原本瘋狂湧入、試圖攻擊我們的紫色藤蔓，在這一刻像是觸電般僵直，隨即發出乾枯的碎裂聲，紛紛萎縮落地。` },
+    { speaker: '系統', text: `「呼……呼……」` },
+    { speaker: '系統', text: `我握著那把刻有 W.T. 的柳葉刀，大口喘著氣。賭對了。這具乾屍確實是這個陣法的核心，只要他「自由」了，哪怕只是形式上的自由，那些受控的植物也會失去目標。` },
+    { speaker: '系統', text: `「啊——！！」` },
+    { speaker: '系統', text: `一聲淒厲的尖叫打破了短暫的寂靜。` },
+    { speaker: '系統', text: `發出尖叫的不是鬼，而是喬若楠。` },
+    { speaker: '系統', text: `隨著紅線斷裂，那種「附身」般的迷離狀態似乎也隨之解除。喬若楠猛地回過神來，一眼就看見自己正貼在一具乾癟恐怖、穿著嫁衣的乾屍身上，甚至自己的手還摸著人家乾枯的臉頰。` },
+    { speaker: '系統', text: `「死人！有死人啊啊啊！」` },
+    { speaker: '系統', text: `喬若楠嚇得魂飛魄散，連滾帶爬地往後縮，整個人縮到了牆角，抱著頭瑟瑟發抖。這一刻，他不再是什麼「風華絕代的祭品」，變回了那個我們熟悉的、有些膽小嬌氣的劇團台柱。` },
+    { speaker: '蘇澈', text: `「若楠！若楠你沒事吧？」蘇澈扔下攝影機衝過去，一把抱住弟弟，「別怕，哥在這兒。」` },
+    { speaker: '喬若楠', text: `「哥……嗚嗚嗚……那是什麼東西啊……」喬若楠嚇得眼淚鼻涕直流，指著床上的乾屍，「我剛才……我剛才好像變成他了……心裡好難受，好想哭……」` },
+    { speaker: '系統', text: `我看著這一幕，心裡反而鬆了口氣。會哭、會怕，說明人回來了。` },
+    { speaker: '系統', text: `「沒時間哭喪了。」` },
+    { speaker: '系統', text: `我轉過身，用那把柳葉刀指了指床上的乾屍，語氣嚴肅：「前殿那個『裴醫生』還在拚命，他讓我們把這位『真正的祭品』帶過去。這是唯一能救大家的辦法。」` },
+    { speaker: '喬若楠', text: `「帶……帶過去？」喬若楠從指縫裡露出一隻眼睛，看到那具黑洞洞眼眶的乾屍，又是一哆嗦，「林老闆你瘋了嗎？這東西都乾了！而且……而且我看著他就覺得心裡發慌……」` },
+    { speaker: '系統', text: `「你發慌，是因為他剛才救了你。」` },
+    { speaker: '系統', text: `我走過去，撿起掉在地上的紅線頭，冷靜地分析：「剛才那些藤蔓是衝著你來的。因為在那一刻，你和他的精神是連通的。如果不是他這具身體在這裡鎮著，你早就被那個老巫師抓回去做成花肥了。」` },
+    { speaker: '系統', text: `我舉起手中的柳葉刀，讓那行 W.T. 的刻字在微光下顯現：` },
+    { speaker: '林恩', text: `「而且，我覺得那位『裴醫生』，應該一直在等他。」` },
+    { speaker: '系統', text: `W.T. —— 魏天縱（Wei Tian-Zong）。 雖然我不知道這個名字，但這個縮寫和那位附身者展現出的「醫生」身份，以及他對這把刀的熟悉程度，形成了一個完美的邏輯閉環。` },
+    { speaker: '系統', text: `這把刀是那個醫生的。而這具乾屍，至死都握著醫生的刀。 他們是一對亡命鴛鴦。` },
+    { speaker: '藍嵐', text: `「藍嵐，還能動嗎？」我看向牆角。` },
+    { speaker: '系統', text: `藍嵐喘著氣，扶著牆站起來，那張憨厚的臉上滿是冷汗：「能……能動。林老闆，你是讓我背這個……老前輩？」` },
+    { speaker: '系統', text: `藍嵐看著乾屍，嚥了口唾沫，雙手合十拜了拜：「前輩莫怪，前輩莫怪，晚輩是為了救人……」` },
+    { speaker: '蘇澈', text: `「不，藍嵐你受傷了，背不動。」我打斷了他，目光轉向縮在蘇澈懷裡的喬若楠，「若楠，你來。」` },
+    { speaker: '喬若楠', text: `「我？！」喬若楠瞪大了眼睛，拼命搖頭，「我不行！我怕死人了！而且我也沒力氣……」` },
+    { speaker: '林恩', text: `「你必須背。」我盯著他的眼睛，語氣不容置疑，「剛才的連結還沒完全斷。這具屍體……這位前輩，他不排斥你。換了我們任何人去碰，說不定都會起屍變。只有你可以。」` },
+    { speaker: '系統', text: `「可是……」` },
+    { speaker: '林恩', text: `「想活著回家嗎？」我指了指門外，「想見到小滿（穆滿）嗎？想的話就站起來。把你這身戲服脫了，給他披上。帶他去見他想見的人。」` },
+    { speaker: '系統', text: `提到穆滿，喬若楠的眼神顫抖了一下。他咬著嘴唇，看著那具乾屍。 不知為何，當恐懼稍退，那種源自靈魂深處的悲傷感再次湧了上來。他看著乾屍那頭枯黃的金髮，竟然覺得……有些熟悉。` },
+    { speaker: '系統', text: `「……好。」` },
+    { speaker: '系統', text: `喬若楠抹了一把眼淚，顫顫巍巍地站起來。他脫下自己身上那件厚重的女蟒戲服，小心翼翼地蓋在乾屍身上，遮住了那駭人的枯骨。` },
+    { speaker: '系統', text: `「前輩……得罪了。」` },
+    { speaker: '系統', text: `喬若楠閉著眼睛，一咬牙，將乾屍背了起來。 出乎意料的輕。 這具在床上坐了一百年的身體，輕得像是一捆枯柴。` },
+    { speaker: '系統', text: `「走！」` },
+    { speaker: '系統', text: `我看準時機，一腳踹開房門。` },
+    { speaker: '系統', text: `外面的震動已經停止了，但空氣中那股令人不安的死寂卻更加濃重。` },
+    { speaker: '系統', text: `我們沿著原路狂奔。沒有了紅線的阻礙，回程快了很多。` },
+    { speaker: '系統', text: `當我們再次衝進前殿的範圍時，一股灼熱的氣浪撲面而來。` },
+    { speaker: '系統', text: `「咳咳咳！」` },
+    { speaker: '系統', text: `原本昏暗陰森的敖家祠堂，此刻已經變成了一片火海。 那不是普通的火，是青白色的磷火。` },
+    { speaker: '系統', text: `大殿中央，那張巨大的紅線網已經被燒得七零八落。 那個瘋狂的大巫苗司，此刻正趴在地上，渾身焦黑，但他依然死死護著身後的神壇，嘴裡發出野獸般的嘶吼。` },
+    { speaker: '系統', text: `而在神壇之上。 那尊巨大的肉身佛——歲神，已經徹底醒了。` },
+    { speaker: '系統', text: `金箔完全剝落，露出裡面黑色的、如同腐爛樹根般的肌肉組織。它沒有站起來，因為它的下半身已經和神壇長在了一起。它正在瘋狂地揮舞著無數根觸手般的血管，試圖撲滅身上的磷火。` },
+    { speaker: '系統', text: `而在這地獄般的場景中，「裴得」正半跪在神壇的邊緣。` },
+    { speaker: '系統', text: `他那身唐裝已經破爛不堪，身上全是黑色的血污。他的一隻手無力地垂著（似乎骨折了），另一隻手還緊緊握著那把生鏽的止血鉗，死死抵住肉身佛的一根主動脈。` },
+    { speaker: '系統', text: `他在笑。 那是強弩之末，卻又極度癲狂的笑。` },
+    { speaker: '系統', text: `「苗老頭！」` },
+    { speaker: '裴得', text: `「裴得」咳出一口血，聲音嘶啞： 「看到了嗎？這就是你的神！它現在只想吃人！連你也想吃！」` },
+    { speaker: '系統', text: `只見那肉身佛的一根觸手，正死死勒住苗司的脖子，試圖從這個守護了它百年的僕人身上汲取最後的養分。` },
+    { speaker: '苗司', text: `「少主……少主賜我長生……」苗司被勒得眼球突出，卻依然在瘋狂地大笑，「吃吧……吃吧……我們融為一體……」` },
+    { speaker: '喬若楠', text: `「裴得」咬著牙，轉過頭，看向門口。 當他看到喬若楠背著那具穿著戲服的乾屍衝進來時，他那雙灰敗的眼睛裡，瞬間爆發出了驚人的光彩。` },
+    { speaker: '顧影', text: `「顧影！！」` },
+    { speaker: '系統', text: `他喊出了那個名字。 這一次，沒有猶豫，沒有哽咽。` },
+    { speaker: '系統', text: `喬若楠被這聲吼嚇了一跳，腳下一軟，背上的乾屍滑落下來。` },
+    { speaker: '系統', text: `就在乾屍落地的瞬間。 我看到那具乾屍的手指——那隻原本死死攥著、直到我掰開才鬆開的手指——竟然輕輕動了一下。` },
+    { speaker: '系統', text: `不是風吹的。 是真的動了。` },
+    { speaker: '系統', text: `原本在大殿裡肆虐的磷火，突然像是受到了某種召喚，全部朝著乾屍匯聚過來。藍色的火焰在乾屍周圍形成了一個保護圈，將那些試圖靠近的觸手全部燒成灰燼。` },
+    { speaker: '系統', text: `「林醫生！」` },
+    { speaker: '系統', text: `神壇上的「裴得」用盡最後的力氣大吼，將手中的止血鉗當作飛鏢，狠狠扎向肉身佛的眉心，同時整個人向後倒去：` },
+    { speaker: '系統', text: `「把刀……給他！！」` },
+    { speaker: '系統', text: `我愣了一下，隨即反應過來。 我手裡還握著那把從後殿帶出來的柳葉刀。` },
+    { speaker: '系統', text: `我看向地上的乾屍。 明明是一具枯骨，但在火光的映照下，我彷彿看到了一個金髮的年輕人，正安靜地站在那裡，向我伸出手。` },
+    { speaker: '系統', text: `我沒有任何猶豫，用盡全身力氣，將手中的柳葉刀滑過地面，推向了乾屍的手邊。` },
+    { speaker: '系統', text: `「接住啊！！」` },
+    { speaker: '系統', text: `當乾枯的手指觸碰到冰冷刀柄的那一刻。` },
+    { speaker: '系統', text: `嗡——！` },
+    { speaker: '系統', text: `一聲清越的刀鳴，蓋過了所有的火焰聲和嘶吼聲。` },
+    { speaker: '系統', text: `[ 附註：林恩的帳本記錄 ] 項目：目擊報告 時間：凌晨三點四十五分 事件：我把刀還給了死人。 結果：我不知道那是科學還是魔法。但我看見那具乾屍……站起來了。` },
+    { type: 'chapter', text: '第十章：未完成的處方 —— 完結' },
+    { type: 'ledger', title: '[ 帳本紀錄：第十章：未完成的處方 ]', item: '紀錄', target: '無', detail: '點擊以進入下一章。', note: '', nextAction: () => startGame('ch11') }
+];
+
+const chapter11Script = [
+    { type: 'bgm', src: BGM_COURTYARD, title: '第十一章：第一百零一年的病歷' },
+    { type: 'v8hud', active: true },
+    { type: 'tint', color: 'darkred' },
+    { type: 'chapter', text: `第十一章：第一百零一年的病歷` },
+    { speaker: '系統', text: `[ 影音檔案編號：199X-07-16_MEMORY ] 來源： 蘇澈的手持 V8 攝影機 備註： 畫面不再晃動，而是被穩定地架在地上。鏡頭對準了火海中央的兩個人影——一個是滿身血污的裴得，一個是披著戲服的乾屍。` },
+    { speaker: '系統', text: `(裴得的聲音，不再是之前的冷硬，而是帶著名士特有的孤傲與破碎感。)` },
+    { speaker: '林恩', text: `「曾經有人問我，手術刀和神像，哪個更能救人？」 「那時候我回答：刀能救命，神只能救心。」 「但我錯了。在那一晚……我的刀救不了命，他的神也沒了心。」` },
+    { speaker: '系統', text: `【現實時間：敖家祠堂 / 神識空間】` },
+    { speaker: '系統', text: `錚——` },
+    { speaker: '系統', text: `那一聲刀鳴，像是劃破了時間的帷幕。` },
+    { speaker: '系統', text: `我看著那具披著大紅女蟒戲服的乾屍，在藍色的磷火中緩緩站直了身體。他那隻枯槁的手緊緊握著那把刻有 W.T. 的柳葉刀，姿勢標準得就像……就像是一個被嚴格訓練過的外科醫生。` },
+    { speaker: '顧影', text: `「……顧影。」` },
+    { speaker: '系統', text: `站在神壇上的「裴得」，看著那個身影，眼眶通紅，身體卻像洩了氣一樣微微佝僂下來。他不再是那個指揮若定的指揮官，此刻的他，更像是一個終於等到了歸人的旅人。` },
+    { speaker: '系統', text: `他慢慢地轉過身，看向躲在柱子後面的我們，以及正舉著攝影機拍攝的蘇澈。` },
+    { speaker: '系統', text: `「記下來。」` },
+    { speaker: '系統', text: `他指了指鏡頭，那雙灰色的眼睛裡燃燒著最後的理智：` },
+    { speaker: '系統', text: `「把接下來的一切都記下來。這不是怪力亂神，這是一份遲交了一百年的……手術事故報告。」` },
+    { speaker: '系統', text: `他深吸一口氣，挺直了脊樑，對著那燃燒的祠堂，對著這百年的光陰，用一種莊重得近乎宣誓的聲音說道：` },
+    { speaker: '林恩', text: `「我的名字是魏天縱。字傲雲。」` },
+    { speaker: '林恩', text: `「我是民國九年留洋歸國的醫學博士，是魏家的大少爺，是一個自以為掌握了真理、卻連自己愛人都救不了的……庸醫。」` },
+    { speaker: '系統', text: `隨著他的自白，周圍的磷火變得更加幽藍。 恍惚間，我彷彿看到了百年前的畫面與現實重疊。` },
+    { speaker: '系統', text: `那是民國九年的敖家寨。 沒有紅線，沒有乾屍。只有漫山遍野的白色水仙花。` },
+    { speaker: '系統', text: `年輕氣盛的魏天縱，穿著筆挺的西裝，手裡拿著聽診器，指著那些喝符水的村民大罵愚昧。 而他的身後，永遠跟著一個沉默的影子。那是顧影，穿著一身乾淨的長衫，抱著魏天縱的藥箱，那張絕世的臉龐上總是帶著溫和的笑意，替少爺擋下村民扔來的爛菜葉。` },
+    { speaker: '顧影', text: `「少爺，別氣了。他們只是怕死。」 「怕死就能喝香灰嗎？顧影，我要救他們！我要把這個村子的『病』連根拔起！」` },
+    { speaker: '系統', text: `畫面一轉。 是那個絕望的雨夜。` },
+    { speaker: '系統', text: `敖羅病發，苗司瘋狂。為了啟動「鎖靈陣」，他們抓住了魏天縱。 為了逼迫顧影就範，苗司打斷了魏天縱那雙拿手術刀的手。` },
+    { speaker: '林恩', text: `「只要你穿上嫁衣，做歲神的侍奉者，我就放魏大夫下山。」` },
+    { speaker: '系統', text: `這是苗司的謊言。 但顧影信了。或者說，他沒得選。` },
+    { speaker: '系統', text: `魏天縱眼睜睜看著顧影脫下長衫，換上了那身鮮紅的嫁衣。 那是魏天縱這輩子見過最美的景象，也是最殘忍的景象。` },
+    { speaker: '系統', text: `臨行前，顧影走到被綁在柱子上的魏天縱面前。 他沒有哭。他只是從魏天縱的藥箱裡，拿出了那把柳葉刀。` },
+    { speaker: '顧影', text: `「少爺，您教過我解剖。」 顧影握著刀，那是魏天縱手把手教他的握刀姿勢。 「您說，人的心臟在左邊第五肋間隙。神的心臟……應該也在那裡吧？」` },
+    { speaker: '顧影', text: `「顧影！你要幹什麼？！」 「我去陪神。如果他聽話，我就哄著他；如果他不聽話……」 顧影將刀藏進了袖子裡，露出了一個淒絕的笑： 「影就替少爺，治一治這世道。」` },
+    { speaker: '系統', text: `……` },
+    { speaker: '林恩', text: `「我以為他只是去送死。」` },
+    { speaker: '系統', text: `現實中，魏天縱（裴得）的聲音在顫抖： 「我以為他只是為了換我一條命。但我沒想到……這個傻瓜，他真的想殺神。」` },
+    { speaker: '系統', text: `他指著那具乾屍： 「他帶著我的刀，坐上了那張婚床。他想在洞房花燭夜刺殺敖羅（肉身佛）。但他失敗了……苗司那個瘋子，用紅線鎖住了他的手，把他活活困死在了那張床上。」` },
+    { speaker: '系統', text: `「一百年啊……」` },
+    { speaker: '系統', text: `魏天縱低下頭，看著自己這雙借來的手（裴得的手）： 「苗司騙了他，也騙了我。他把顧影做成了不朽的祭品，把我的屍體做成了觀禮的跪俑。他讓我們一個在後殿，一個在前殿，隔著一堵牆，整整一百年……不得相見。」` },
+    { speaker: '系統', text: `「但今天，林恩。」` },
+    { speaker: '系統', text: `魏天縱猛地抬起頭，看向我。那眼神銳利如刀：` },
+    { speaker: '林恩', text: `「你把你手裡的刀給了他。你切斷了那根紅線。」 「這說明，哪怕過了一百年，他的手……還沒有鬆開我的刀。」` },
+    { speaker: '系統', text: `轟隆——！` },
+    { speaker: '系統', text: `神壇上的肉身佛發出憤怒的咆哮。 苗司雖然被燒得面目全非，但他依然掙扎著從地上爬起來，試圖操縱那些殘存的紅線攻擊我們。` },
+    { speaker: '系統', text: `「魏天縱！！你們都是罪人！！你們毀了少主的長生！！」` },
+    { speaker: '系統', text: `「去你媽的長生。」` },
+    { speaker: '系統', text: `魏天縱罵了一句極其接地氣的髒話。 他轉過身，看著那具已經走到神壇下的乾屍——顧影。` },
+    { speaker: '系統', text: `顧影的動作很慢，每一步都伴隨著骨骼的脆響。但他走得很穩。 他披著喬若楠的戲服，手裡握著那把柳葉刀。藍色的磷火環繞著他，就像是一層無菌的手術服。` },
+    { speaker: '系統', text: `他抬起頭，那雙空洞的眼眶對準了高高在上的肉身佛。` },
+    { speaker: '顧影', text: `「顧影。」` },
+    { speaker: '系統', text: `魏天縱輕聲喚道。` },
+    { speaker: '系統', text: `不需要更多的語言。 一百年前的主僕，一百年前的師徒，一百年前未竟的戀人。 在這一刻，靈魂共振。` },
+    { speaker: '系統', text: `魏天縱舉起手中的止血鉗，指向肉身佛胸口那塊早已腐爛發黑的「心臟」位置：` },
+    { speaker: '系統', text: `「切口位置確認——胸骨正中，第五肋間隙。」` },
+    { speaker: '系統', text: `地上的乾屍顧影，像是聽到了指令。 他那僵硬的膝蓋微微彎曲，隨後，整個人如同一支離弦的箭，踩著神壇的邊緣，高高躍起！` },
+    { speaker: '苗司', text: `「不——！！！」苗司發出絕望的尖叫。` },
+    { speaker: '系統', text: `顧影在空中劃出一道紅色的殘影。 那把刻著 W.T. 的柳葉刀，在磷火的包裹下，化作一道流光。` },
+    { speaker: '系統', text: `「動手！！」魏天縱大吼。` },
+    { speaker: '系統', text: `噗嗤！` },
+    { speaker: '系統', text: `乾屍顧影重重地撞在肉身佛的懷裡。 那把小小的柳葉刀，精準無誤地刺入了那尊龐然大物的胸口。` },
+    { speaker: '系統', text: `不是為了殺戮。 是為了治癒。 是為了切除這顆長了一百年的、名為「執念」的毒瘤。` },
+    { speaker: '系統', text: `砰——` },
+    { speaker: '系統', text: `一聲悶響。 時間彷彿在這一刻靜止了。` },
+    { speaker: '系統', text: `我看見肉身佛那張猙獰的臉，突然僵住了。 緊接著，無數道金色的光芒從刀口處炸裂開來。那不是神光，那是被囚禁了百年的時間，終於決堤了。` },
+    { speaker: '系統', text: `魏天縱站在一旁，看著擁抱在一起的顧影和肉身佛。 他笑了。 那是一個醫生看著手術成功時的笑，也是一個男人看著愛人終於解脫時的笑。` },
+    { speaker: '系統', text: `「手術……成功。」` },
+    { speaker: '系統', text: `他輕輕說完這四個字，身體一軟，從神壇上栽了下來。` },
+    { speaker: '系統', text: `[ 附註：林恩的帳本記錄 ] 項目：手術記錄 主刀醫生：魏天縱（已故）、顧影（已故） 助手：林恩、李客（已故） 手術對象：歲神（敖羅） 結果：病灶切除。但……代價似乎還沒付清。` },
+    { type: 'chapter', text: '第十一章：第一百零一年的病歷 —— 完結' },
+    { type: 'ledger', title: '[ 帳本紀錄：第十一章：第一百零一年的病歷 ]', item: '紀錄', target: '無', detail: '點擊以進入下一章。', note: '', nextAction: () => startGame('ch12') }
+];
+
+const chapter12Script = [
+    { type: 'bgm', src: BGM_COURTYARD, title: '第十二章：天亮請謝幕' },
+    { type: 'v8hud', active: true },
+    { type: 'tint', color: 'normal' },
+    { type: 'chapter', text: `第十二章：天亮請謝幕` },
+    { speaker: '系統', text: `[ 影音檔案編號：199X-07-16_MORNING ] 來源： 蘇澈的手持 V8 攝影機 備註： 畫面過曝，那是清晨的第一縷陽光。鏡頭對準了那座已經坍塌成廢墟的石牌坊。` },
+    { speaker: '系統', text: `(風聲很大，吹散了積鬱百年的濃霧。)` },
+    { speaker: '林恩', text: `（畫外音，聲音沙啞）： 「……戲唱完了。」(鏡頭掃過地面，泥土裡半埋著一隻鋼筆。一隻透明的手撿起了它，隨後徹底消散在陽光裡。)` },
+    { speaker: '系統', text: `(遠處傳來幾聲雞鳴。)` },
+    { speaker: '系統', text: `【現實時間：敖家祠堂 -> 村口】` },
+    { speaker: '系統', text: `轟隆隆——` },
+    { speaker: '系統', text: `隨著肉身佛心臟的停止，那種維繫了百年的、反自然的「永生」終於崩塌。` },
+    { speaker: '系統', text: `巨大的金身佛像在我們眼前迅速風化。金箔變成了黑色的粉塵，腐爛的肌肉化作了泥土。那個曾經不可一世、吞噬了無數生命的「歲神」，在短短幾秒鐘內，變回了一具早已該入土為安的枯骨。` },
+    { speaker: '系統', text: `而在那具枯骨的懷裡，另一具穿著嫁衣的骸骨（顧影）正安靜地靠在他的肩頭。 那把刻著 W.T. 的柳葉刀，穿透了兩具屍體的胸骨，將他們永遠地釘在了一起。` },
+    { speaker: '系統', text: `磷火漸漸熄滅。 他們終於不再是神與祭品，而是一對死在百年前的戀人。` },
+    { speaker: '系統', text: `「……結束了。」` },
+    { speaker: '系統', text: `神壇邊緣，「裴得」身子一晃，整個人像是被抽走了脊樑骨，軟軟地跪倒在地。` },
+    { speaker: '林恩', text: `「裴少爺！」我衝過去扶住他。` },
+    { speaker: '系統', text: `他抬起頭，那雙灰色的眼睛裡，銳利的光芒正在迅速消散，取而代之的是一種深深的疲憊和釋然。` },
+    { speaker: '系統', text: `他看了一眼那兩具相擁的白骨，嘴角勾起一抹淡淡的笑意：` },
+    { speaker: '系統', text: `「林醫生，手術很成功……沒有併發症。」` },
+    { speaker: '系統', text: `說完這句話，他渾身劇烈地抽搐了一下，翻了個白眼，徹底暈死過去。` },
+    { speaker: '系統', text: `「喂！別睡啊！賬還沒結呢！」` },
+    { speaker: '系統', text: `我拍了拍裴得的臉，但他沒有任何反應。摸了摸脈搏，跳得很快，但那是活人的脈搏——那個佔據他身體的靈魂，走了。` },
+    { speaker: '系統', text: `「快走！這裡要塌了！」` },
+    { speaker: '系統', text: `藍嵐背著還在發愣的喬若楠，蘇澈拖著依然癱瘓的駱安，我們一群殘兵敗將，在崩塌的煙塵中向外狂奔。` },
+    { speaker: '系統', text: `【地點：古戲台後台】` },
+    { speaker: '系統', text: `衝出祠堂，原本掛滿紅線的村莊此刻正以肉眼可見的速度衰敗。 那些掛在樹上的「腸子」變成了乾枯的樹皮，路邊巡邏的「村民」在陽光下紛紛倒地，化作一堆堆散亂的白骨和爛布。` },
+    { speaker: '系統', text: `當我們路過戲台時，一聲微弱的哭聲從後台傳來。` },
+    { speaker: '林恩', text: `「嗚嗚嗚……我的衣服髒了……」` },
+    { speaker: '系統', text: `蘇澈腳步一頓：「翠兒？！」` },
+    { speaker: '系統', text: `我們衝進後台。只見在那個堆滿紙紮人的角落裡，那個穿著翠綠色襖子的小姑娘——何翠，正坐在地上大哭。` },
+    { speaker: '系統', text: `她身上那層恐怖的紙殼已經脫落，露出了裡面沾滿灰塵、卻溫熱柔軟的皮膚。她手裡還抓著那個寫著「李客」名字的破爛紙人，一臉茫然地看著我們。` },
+    { speaker: '蘇澈', text: `「蘇澈哥哥？」何翠揉著眼睛，臉上還帶著剛睡醒的紅印，「我怎麼睡著了？若楠哥哥的戲唱完了嗎？那個借我衣服穿的大哥哥去哪了？」` },
+    { speaker: '系統', text: `看到何翠變回了活人，蘇澈這個一米八的大男人，當場腿軟跪在地上，抱著何翠嚎啕大哭。` },
+    { speaker: '系統', text: `「沒事了……沒事了……哥哥帶你回家吃糖。」` },
+    { speaker: '系統', text: `我看了一眼何翠手裡那個已經燒掉一半的紙人。 那個叫李客的學生，借了她的「生氣」才得以顯形，但也許正因如此，他在最後一刻保護了這個小姑娘，沒讓她被苗大巫做成真正的紙偶。` },
+    { speaker: '林恩', text: `「帶上她，快走。」我催促道，「太陽要出來了。」` },
+    { speaker: '系統', text: `【地點：村口石牌坊】` },
+    { speaker: '系統', text: `我們沿著來時的路狂奔。 沒有了鬼打牆，下山的路變得異常清晰。` },
+    { speaker: '系統', text: `當我們氣喘吁吁地跑到那座石牌坊前時，東方的天空已經泛起了魚肚白。` },
+    { speaker: '系統', text: `霧氣散了。 那個穿著黑色學生裝的身影，依然站在那裡。` },
+    { speaker: '系統', text: `李客背對著我們，望著山下那片現代化的世界，望著遠處城市的燈火。他的身體已經變得半透明，在晨曦中若隱若現。` },
+    { speaker: '系統', text: `聽到腳步聲，他轉過身。 這一次，他的腳後跟終於落地了。` },
+    { speaker: '系統', text: `他看著我們這群狼狽不堪的倖存者，目光在昏迷的裴得身上停留了很久。雖然裴得已經昏過去了，那個「魏老師」也不在了，但李客的臉上卻露出了前所未有的燦爛笑容。` },
+    { speaker: '系統', text: `他整理了一下那件破破爛爛的中山裝，從口袋裡掏出一支已經生鏽的鋼筆，那是他最寶貴的東西。` },
+    { speaker: '李客', text: `「各位，」李客對著我們揮了揮手，聲音輕得像風，「老師是不是已經出院了？」` },
+    { speaker: '系統', text: `我不自覺地停下腳步，點了點頭：「嗯。出院了。」` },
+    { speaker: '李客', text: `「太好了。」李客鬆了一口氣，像個卸下了千斤重擔的孩子，「那我也該下課了。」` },
+    { speaker: '系統', text: `他將那支鋼筆輕輕放在路邊的石獅子上，然後後退一步，對著我們，或者說是對著我們身後那段跨越了一百年的歷史，標準地鞠了一個躬。` },
+    { speaker: '李客', text: `「李客，民國九年醫科生，實習完畢。」` },
+    { speaker: '系統', text: `陽光穿透雲層，灑在他的身上。 他的身體化作無數金色的光點，隨著晨風飄散。沒有痛苦，沒有遺憾，只有終於完成任務的輕鬆。` },
+    { speaker: '系統', text: `那支鋼筆靜靜地躺在石獅子上，在陽光下閃著微光。` },
+    { speaker: '系統', text: `【尾聲：帳本的最後一頁】` },
+    { speaker: '系統', text: `三天後。城內醫院。` },
+    { speaker: '系統', text: `「哎喲……輕點輕點！莫大夫，您這手勁是用來殺豬的嗎？」` },
+    { speaker: '系統', text: `裴得躺在病床上，頭上纏著厚厚的繃帶，正對著給他換藥的莫離（莫大夫）呲牙咧嘴。` },
+    { speaker: '系統', text: `「閉嘴。」莫離冷著臉，手下的動作卻精準輕柔，「腦震盪加多處軟組織挫傷，還能有力氣叫喚，說明死不了。」` },
+    { speaker: '系統', text: `病房的門被推開。 穆滿（穆老闆）穿著一身筆挺的西裝走了進來，身後跟著依然有些恍惚的蘇澈和已經活蹦亂跳的何翠。` },
+    { speaker: '喬若楠', text: `「林先生，」穆滿走到我面前，遞過一張支票，「這是剩下的尾款，還有給各位的……精神損失費。這次多虧了你們，我二哥（喬若楠）才能回來。」` },
+    { speaker: '系統', text: `我看了一眼支票上的數字，滿意地合上了我的帳本。這筆生意，雖然驚險，但總算是回本了。` },
+    { speaker: '林恩', text: `「若楠怎麼樣了？」我問。` },
+    { speaker: '系統', text: `「還在睡。」穆滿嘆了口氣，眼神有些複雜，「不過醫生說他身體沒大礙，就是……精神上有點奇怪。」` },
+    { speaker: '系統', text: `「怎麼奇怪？」` },
+    { speaker: '蘇澈', text: `「他醒過來一次。」蘇澈在一旁插話，表情古怪，「他問我……有沒有看見一把柳葉刀。還說那是別人送他的定情信物。」` },
+    { speaker: '系統', text: `我愣了一下，隨即苦笑。 看來那場百年大夢，還是在喬若楠的靈魂裡留下了點痕跡。` },
+    { speaker: '系統', text: `這時，病床上的裴得突然坐直了身體，一臉嚴肅地盯著窗外的陽光。` },
+    { speaker: '藍嵐', text: `「怎麼了？又看見什麼了？」藍嵐（正在削蘋果）嚇得手一抖，差點削到手。` },
+    { speaker: '系統', text: `裴得摸了摸下巴，若有所思地說：「不知道為什麼……我總覺得我好像學會了德語？剛才看電視，竟然能聽懂那個德國佬在罵人。」` },
+    { speaker: '系統', text: `我們面面相覷，隨後爆發出一陣大笑。` },
+    { speaker: '系統', text: `我看著窗外熙熙攘攘的街道，現代都市的車水馬龍早已掩蓋了深山裡的那些往事。` },
+    { speaker: '系統', text: `敖家寨已經徹底消失在地圖上，那裡發生的一切——瘋狂的大巫、絕望的肉身佛、穿嫁衣的少年、還有那位傲慢的醫生和傻乎乎的學生，都變成了一場無法被證實的怪談。` },
+    { speaker: '系統', text: `我摸了摸口袋。 那裡放著一支生鏽的派克鋼筆。 那是李客留下的唯一的東西。` },
+    { speaker: '裴得', text: `「林醫生，」裴得突然喊我，「你說，這世界上真的有神嗎？」` },
+    { speaker: '系統', text: `我看著那支鋼筆，想起了魏天縱最後的那個笑容。` },
+    { speaker: '林恩', text: `「也許有吧。」我說，「但比起神，我更相信拿著刀的人。」` },
+    { speaker: '系統', text: `[ 影音檔案結束 ] [ 全劇終 ]` },
+    { type: 'chapter', text: '第十二章：天亮請謝幕 —— 完結' },
+    { type: 'ledger', title: '[ 帳本紀錄：第十二章：天亮請謝幕 ]', item: '紀錄', target: '無', detail: '點擊以進入下一章。', note: '', nextAction: () => startGame('epilogue') }
+];
+
+const epilogueScript = [
+    { type: 'bgm', src: BGM_COURTYARD, title: '番外篇：殘夢（那一年，花開無聲）' },
+    { type: 'v8hud', active: true },
+    { type: 'tint', color: 'normal' },
+    { type: 'chapter', text: `番外篇：殘夢（那一年，花開無聲）` },
+    { speaker: '系統', text: `[ 影音檔案編號：199X-07-20_HOSPITAL ] 來源： 蘇澈的手持 V8 攝影機 地點： 聖瑪麗亞教會醫院，單人病房 備註： 畫面乾淨明亮，只有窗外蟬鳴的聲音。鏡頭對準了病床上一位臉色蒼白的青年。` },
+    { speaker: '系統', text: `(喬若楠穿著寬大的病號服，手裡捧著一杯熱水，眼神有些失焦地看著窗外的陽光。)` },
+    { speaker: '喬若楠', text: `（沉默許久，輕聲開口）： 「……林先生，你知道嗎？那件嫁衣……其實一點都不重。」 「重的是那把刀。」【現實時間：醫院病房】` },
+    { speaker: '系統', text: `空氣裡瀰漫著消毒水的味道，終於蓋過了那股糾纏我們數日的硫磺與屍臭。` },
+    { speaker: '系統', text: `喬若楠醒來已經兩天了。他的身體恢復得不錯，但精神狀態始終有些游離。他總是看著自己的手心發呆，或者對著鏡子裡的自己露出陌生的表情。` },
+    { speaker: '穆滿', text: `（穆老闆）去辦理出院手續了，蘇澈在削蘋果。我坐在床邊，手裡的帳本翻到了最後一頁空白。「我想把那段故事補全。」我對喬若楠說，「關於那個你一直喊著『少爺』的人，還有那个坐在神壇上的瘋子。` },
+    { speaker: '系統', text: `喬若楠捧著水杯的手微微顫抖了一下。` },
+    { speaker: '林恩', text: `「我沒見過他們。」他低聲說，「但我……感覺得到他們。」` },
+    { speaker: '系統', text: `他閉上眼睛，似乎又回到了那個充滿了紫色曼陀羅和紅線的後殿廂房。` },
+    { speaker: '喬若楠', text: `「那個叫顧影的前輩……」喬若楠的聲音變得很輕，像是在講述一個別人的夢，「他在等一個人。」` },
+    { speaker: '裴得', text: `「他在等魏天縱（裴得身上的醫生）。」我說。` },
+    { speaker: '喬若楠', text: `「是，也不是。」喬若楠搖了搖頭，「他不僅是在等魏醫生來救他，他是在等……等著把那個『怪物』殺死，好讓魏醫生能活著走出那座山。」` },
+    { speaker: '系統', text: `喬若楠睜開眼，那雙原本屬於名伶的桃花眼裡，此刻流露出一種超越了性別與時代的悲憫：` },
+    { speaker: '林恩', text: `「我穿上那身戲服的時候，腦子裡全是他的記憶。很亂，但我看見了……」` },
+    { speaker: '系統', text: `【記憶碎片一：初見與嫉妒】` },
+    { speaker: '敖羅', text: `「我看見了敖羅（歲神）。」` },
+    { speaker: '系統', text: `「那時候他還不是肉身佛。他是一個很瘦、很白的男人，坐在輪椅上，腿上蓋著厚厚的毯子。他長得很英俊，但是那種……快要枯萎的英俊。他的眼睛是金色的，像夕陽。」` },
+    { speaker: '系統', text: `喬若楠嚥了口唾沫，似乎那個眼神至今仍讓他感到寒冷：` },
+    { speaker: '敖羅', text: `「那天，顧影跟著魏醫生進寨子。敖羅就坐在樓上看著。他沒看魏醫生，他一直在看顧影。」` },
+    { speaker: '蘇澈', text: `「是因為顧影長得美嗎？」蘇澈忍不住插嘴。` },
+    { speaker: '喬若楠', text: `「不。」喬若楠苦笑一聲，「是因為顧影太『活』了。那時候的顧影，哪怕只是安靜地站在那裡，身上都透著一股子生命力。那是敖羅最缺少的東西。」` },
+    { speaker: '苗司', text: `「然後我看見了苗司。」` },
+    { speaker: '系統', text: `提到這個名字，喬若楠打了個寒顫：` },
+    { speaker: '苗司', text: `「那時候的苗司還不老。他跪在敖羅腳邊，正在給敖羅按摩腿。他看顧影的眼神……好可怕。那不是看祭品的眼神，那是……嫉妒。」` },
+    { speaker: '顧影', text: `「嫉妒？」我皺眉，「嫉妒顧影能成為祭品？」` },
+    { speaker: '喬若楠', text: `「不，」喬若楠輕聲說，「他嫉妒敖羅看顧影的眼神。苗司愛著敖羅。愛得發瘋。他願意為了敖羅把全村人都殺了，把時間都停住。可敖羅眼裡只有那個健康的、鮮活的外來人。」` },
+    { speaker: '系統', text: `【記憶碎片二：那場交易】` },
+    { speaker: '系統', text: `「那天晚上雨很大。」` },
+    { speaker: '系統', text: `喬若楠抬起手，摸了摸自己的喉嚨，彷彿那裡還殘留著窒息感：` },
+    { speaker: '苗司', text: `「苗司抓住了魏醫生。他拿著刀，抵著魏醫生的脖子。他對顧影說：『少主喜歡你的臉。把你的臉留下來陪少主，我就放這個庸醫走。』」` },
+    { speaker: '顧影', text: `「顧影答應了？」` },
+    { speaker: '喬若楠', text: `「他沒有猶豫。」喬若楠的眼眶紅了，「那種感覺很奇怪……我明明是喬若楠，但我當時心裡想的卻是：『只要少爺能活，這張皮囊算什麼？』」` },
+    { speaker: '喬若楠', text: `「但是……」喬若楠話鋒一轉，「苗司騙了他。」` },
+    { speaker: '系統', text: `【記憶碎片三：洞房花燭夜的真相】` },
+    { speaker: '顧影', text: `「那天晚上，顧影穿著嫁衣，藏著那把柳葉刀，坐上了那張床。」` },
+    { speaker: '苗司', text: `「敖羅進來了。他已經病得走不動路了，是苗司把他背進來的。」` },
+    { speaker: '系統', text: `喬若楠的聲音開始顫抖，彷彿親身經歷了那場百年前的恐怖：` },
+    { speaker: '敖羅', text: `「敖羅沒有碰顧影。他只是坐在對面，看著顧影，看了很久很久。然後他說了一句話……」` },
+    { speaker: '系統', text: `喬若楠模仿著那種虛弱而蒼涼的語氣：` },
+    { speaker: '系統', text: `『真好啊。如果我有這樣一副身子，是不是就能陪阿司（苗司）走得更遠一點？』` },
+    { speaker: '系統', text: `我們都愣住了。 原來那個高高在上的歲神，那個自私地困住所有人的怪物，心裡想的竟然也是別人。` },
+    { speaker: '藍嵐', text: `「原來敖羅在乎的是苗司？」藍嵐驚訝地張大嘴。` },
+    { speaker: '喬若楠', text: `「是啊。」喬若楠嘆了口氣，「這是一筆爛帳。苗司為了留住敖羅，不惜成魔；敖羅為了不讓苗司傷心，接受了變成怪物的命運；而顧影……成了他們這場扭曲愛戀中最無辜的犧牲品。」` },
+    { speaker: '系統', text: `「那後來呢？」` },
+    { speaker: '顧影', text: `「後來，顧影動手了。」` },
+    { speaker: '系統', text: `喬若楠的手猛地抓緊了床單：` },
+    { speaker: '敖羅', text: `「他掏出刀，刺向敖羅。不是為了殺人，是為了讓這一切結束。他想殺了敖羅，再自殺。這樣大家就都解脫了。」` },
+    { speaker: '苗司', text: `「可是苗司就在屏風後面。」` },
+    { speaker: '苗司', text: `「無數根紅線衝出來，鎖住了顧影的手腕，鎖住了他的喉嚨。苗司像個瘋子一樣衝出來，他尖叫著，哭喊著。他不能容忍任何人破壞他的『傑作』，更不能容忍敖羅死。」` },
+    { speaker: '顧影', text: `「所以，他把顧影縫在了那張床上。」` },
+    { speaker: '系統', text: `喬若楠流下了眼淚，那不是為自己流的，是為那個金髮的年輕人流的：` },
+    { speaker: '敖羅', text: `「他把顧影做成了不朽的標本，讓他永遠保持著『行刺』的姿勢，永遠握著那把刀。然後把敖羅做成了肉身佛，放在前殿受人膜拜。」` },
+    { speaker: '系統', text: `「他把這三個最痛苦的人，永遠地困在了一起。」` },
+    { speaker: '系統', text: `【尾聲：遲來的自由】` },
+    { speaker: '系統', text: `病房裡陷入了長久的沉默。 窗外的蟬鳴聲依然聒噪，但我們卻覺得心裡涼颼颼的。` },
+    { speaker: '系統', text: `這不是一個關於神鬼的故事。 這是一個關於三個「不想放手」的人，互相折磨了一百年的悲劇。` },
+    { speaker: '系統', text: `苗司不放手敖羅。 敖羅不放手時間。 顧影……不放手那把刀（魏天縱）。` },
+    { speaker: '喬若楠', text: `「林先生，」喬若楠擦乾眼淚，轉過頭看著我，「那天在火海裡，你看見了嗎？」` },
+    { speaker: '系統', text: `「看見什麼？」` },
+    { speaker: '喬若楠', text: `「看見那把刀刺進肉身佛胸口的時候……」喬若楠輕聲說，「我看見敖羅笑了。」` },
+    { speaker: '苗司', text: `「我也看見苗司哭了。他最後撲向火海的時候，不是想殺我們，他是想去抱住神壇上的敖羅。」` },
+    { speaker: '系統', text: `喬若楠看向窗外的天空，嘴角終於露出了一絲釋然的微笑：` },
+    { speaker: '系統', text: `「他們終於都解脫了。」` },
+    { speaker: '顧影', text: `「那個借了裴少爺身體的魏醫生，最後帶著顧影走了。而那個瘋瘋癲癲的老頭，也終於能和他的少主死在一起了。」` },
+    { speaker: '喬若楠', text: `「雖然這結局不算好……」喬若楠閉上眼睛，深吸了一口氣，「但至少，戲唱完了，大家都能睡個好覺了。」` },
+    { speaker: '系統', text: `林恩的畫外音（獨白）：` },
+    { speaker: '系統', text: `我合上了帳本。 這筆生意，穆老闆付的錢只夠買回喬若楠的命。 但那些百年前的真相，那些愛恨嗔癡，是沒有價錢的。它們隨著那場大火，變成了山裡的灰燼。` },
+    { speaker: '系統', text: `「好好休息吧，名角兒。」` },
+    { speaker: '系統', text: `我站起身，拍了拍喬若楠的肩膀。` },
+    { speaker: '系統', text: `走出病房時，我看見走廊的盡頭，裴得正纏著繃帶，和一個看不見的人在空氣中比手畫腳地吵架（大概是在和那位魏醫生做最後的道別）。` },
+    { speaker: '系統', text: `陽光很好。 那是沒有紅線捆綁的、自由的陽光。` },
+    { speaker: '系統', text: `[ 錄像結束 ]` },
+    { speaker: '系統', text: `【彩蛋：未寄出的信】` },
+    { speaker: '系統', text: `(這是在整理李客留下的那支鋼筆時，發現夾在筆蓋縫隙裡的一張極小的紙條。字跡潦草，應該是李客臨死前寫的。)` },
+    { speaker: '李客', text: `「致 魏老師： 路測數據已完成。這村子的結構像個人體，太神奇了！等您做完手術，我們帶顧影師兄去吃城南的桂花糕吧？他說他想吃甜的。 —— 學生 李客 絕筆」` },
+    { type: 'chapter', text: '全劇終' },
+    { type: 'triggerEnding', ending: 'true' }
+];
+
+
+
+
+
+
+
+
+
+        function updateUI() {
+            document.getElementById('sanityVal').textContent = `${state.sanity}%`;
+            document.getElementById('sanityFill').style.width = `${Math.max(0, Math.min(100, state.sanity))}%`;
+
+            document.getElementById('energyVal').textContent = `${state.energy}/100`;
+            document.getElementById('energyFill').style.width = `${Math.max(0, Math.min(100, state.energy))}%`;
+
+            document.getElementById('curseVal').textContent = `${state.curse}%`;
+            document.getElementById('curseFill').style.width = `${Math.max(0, Math.min(100, state.curse))}%`;
+
+            document.getElementById('peterAffinityText').textContent = `${state.peter.affinity}%`;
+            document.getElementById('peterRageText').textContent = `${state.peter.rage}%`;
+
+            document.getElementById('lanlanAffinityText').textContent = `${state.lanlan.affinity}%`;
+            document.getElementById('lanlanHurtText').textContent = `${state.lanlan.hurt}%`;
+
+            document.getElementById('jornonaAffinityText').textContent = `${state.jornona.affinity}%`;
+            document.getElementById('jornonaPoisonText').textContent = `${state.jornona.poison}%`;
+        }
+
+        function typeText(element, text, speed = 22) {
+            return new Promise(resolve => {
+                isTyping = true;
+                let i = 0;
+                element.innerHTML = '';
+                const continueBtn = document.getElementById('continueBtn');
+                continueBtn.textContent = "跳過...";
+
+                function type() {
+                    if (i < text.length) {
+                        element.innerHTML += text.charAt(i);
+                        if (i % 3 === 0) sfx.type();
+                        i++;
+                        const dialogueHistory = document.getElementById('dialogueHistory');
+                        dialogueHistory.scrollTop = dialogueHistory.scrollHeight;
+                        setTimeout(type, speed);
+                    } else {
+                        isTyping = false;
+                        continueBtn.textContent = "點擊繼續...";
+                        resolve();
+                    }
+                }
+                type();
+            });
+        }
+
+        function showLedgerUI(data) {
+            document.getElementById('ledgerTitle').textContent = data.title || '[ 林恩的帳本記錄 ]';
+            document.getElementById('ledgerItem').textContent = data.item || '未定項目';
+            document.getElementById('ledgerTarget').textContent = data.target || '未知目標';
+            document.getElementById('ledgerDetail').textContent = data.detail || '無詳細記錄';
+            document.getElementById('ledgerNote').textContent = `備註：${data.note || '無特殊備註'}`;
+
+            const signBtn = document.getElementById('ledgerSignBtn');
+            signBtn.onclick = () => {
+                sfx.chime();
+                closeModal('ledgerModal');
+                if (data.nextAction) data.nextAction();
+                else processNextDialogue();
+            };
+
+            openModal('ledgerModal');
+        }
+
+        async function processNextDialogue() {
+            if (isTyping) return;
+            if (dialogueQueue.length === 0) return;
+
+            sfx.click();
+            const node = dialogueQueue.shift();
+
+            if (node.type === 'chapter') {
+                const chapterEl = document.createElement('div');
+                chapterEl.className = 'chapter-banner';
+                chapterEl.textContent = node.text;
+                document.getElementById('dialogueHistory').appendChild(chapterEl);
+                processNextDialogue();
+                return;
+            }
+
+            if (node.type === 'triggerPossess') {
+                possessPeterByWeiTianzong();
+                processNextDialogue();
+                return;
+            }
+
+            if (node.type === 'ledger') {
+                showLedgerUI(node);
+                return;
+            }
+
+            if (node.type === 'shake') {
+                triggerScreenShake();
+                processNextDialogue();
+                return;
+            }
+
+            if (node.type === 'v8hud') {
+                const v8Hud = document.getElementById('v8Hud');
+                if (v8Hud) v8Hud.style.display = node.active ? 'flex' : 'none';
+                processNextDialogue();
+                return;
+            }
+
+            if (node.type === 'tint') {
+                const stageView = document.getElementById('stageView');
+                stageView.classList.remove('darkred-tint', 'bw-static', 'nightvision-tint');
+                if (node.color === 'darkred') stageView.classList.add('darkred-tint');
+                if (node.color === 'bwstatic') stageView.classList.add('bw-static');
+                if (node.color === 'nightvision') stageView.classList.add('nightvision-tint');
+                processNextDialogue();
+                return;
+            }
+
+            if (node.type === 'bgm') {
+                changeBGM(node.src, node.title || '恐怖音律');
+                processNextDialogue();
+                return;
+            }
+
+            if (node.type === 'triggerEnding') {
+                triggerEnding(node.ending);
+                return;
+            }
+
+            if (node.type === 'choice') {
+                document.getElementById('continueBtn').style.display = 'none';
+                const choicesContainer = document.getElementById('choicesContainer');
+                choicesContainer.style.display = 'flex';
+                choicesContainer.innerHTML = '';
+
+                node.choices.forEach(c => {
+                    const btn = document.createElement('button');
+                    btn.className = 'choice-btn';
+                    btn.innerHTML = `<span>${c.text}</span> <span style="font-size:0.8rem; color:#888;">▸</span>`;
+                    btn.onclick = () => {
+                        sfx.click();
+                        if (c.onSelect) c.onSelect();
+                        choicesContainer.style.display = 'none';
+                        document.getElementById('continueBtn').style.display = 'block';
+                        if (c.next) dialogueQueue = [...c.next, ...dialogueQueue];
+                        processNextDialogue();
+                    };
+                    choicesContainer.appendChild(btn);
+                });
+                return;
+            }
+
+            let isDialogue = node.text && (node.text.includes('「') || node.text.includes('『'));
+
+            if (node.type === 'unlockCard') {
+                const card = document.getElementById(node.target);
+                if (card) {
+                    card.style.display = 'flex';
+                    sfx.chime();
+                    const sysEl = document.createElement('div');
+                    sysEl.className = 'system-msg';
+                    sysEl.style.color = 'var(--accent-gold)';
+                    sysEl.textContent = `【系統提示】：已解鎖角色 [${node.charName}]`;
+                    document.getElementById('dialogueHistory').appendChild(sysEl);
+
+                    if (node.charName.includes('藍嵐')) unlockProfile('lanlan');
+                    if (node.charName.includes('裴得')) unlockProfile('peter');
+                    if (node.charName.includes('喬若楠')) unlockProfile('jornona');
+                    if (node.charName.includes('苗司')) unlockProfile('melas');
+                }
+                processNextDialogue();
+                return;
+            } else if (!isDialogue) {
+                const sysEl = document.createElement('div');
+                sysEl.className = 'system-msg';
+                sysEl.style.textAlign = 'left';
+                sysEl.style.padding = '8px 12px';
+                sysEl.style.lineHeight = '1.7';
+                sysEl.style.color = '#ddd';
+                sysEl.style.fontSize = '1.05rem';
+                document.getElementById('dialogueHistory').appendChild(sysEl);
+                await typeText(sysEl, node.text);
+            } else {
+                const box = document.createElement('div');
+                box.className = 'dialogue-box';
+                
+                let avatarUrl = avatars[node.speaker] || avatars['林恩'];
+                let displayName = node.speaker;
+                if (node.speaker === '裴得' && state.isPossessed) {
+                    avatarUrl = avatars['魏天縱'];
+                    displayName = '魏天縱';
+                }
+
+                // Restore avatar and name UI, but unified red color
+                box.innerHTML = `
+                    <div class="dialogue-bubble" style="border-left: 3px solid #ff4444; background: rgba(20, 10, 10, 0.85); width: 100%; padding: 12px; border-radius: 4px; margin-top: 5px;">
+                        <div class="dialogue-text"></div>
+                    </div>
+                `;
+                document.getElementById('dialogueHistory').appendChild(box);
+                const textEl = box.querySelector('.dialogue-text');
+                await typeText(textEl, node.text);
+            }
+        }
+
+        document.getElementById('continueBtn').addEventListener('click', processNextDialogue);
+
+        function triggerEnding(type) {
+            let title = "結局：歲神詛詛";
+            let desc = "劇情描述...";
+
+            let unlocked = JSON.parse(localStorage.getItem('sui_shen_unlocked_endings') || "[]");
+
+            if (type === 'true') {
+                title = "🏆 完美大團圓結局：《破戲解咒 · 超生大團圓》";
+                desc = "您成功完成了全九章的艱險探索！魏天縱醫生的手藝切斷了肉身佛主動脈，李客在晨曦中微笑着完成了民國九年的實習，何翠脫落紙殼恢復生氣，喬若楠與駱安班主平安歸來。穆老闆支付了豐厚尾款，那支生鏽的派克鋼筆靜靜陪伴著您。百年的歲神陰霾，終於被科學與人性徹底洗滌！";
+                if (!unlocked.includes('true')) unlocked.push('true');
+            } else if (type === 'branch') {
+                title = "🩸 分支結局：《血色殘戲》";
+                desc = "您選擇優先衝向牆邊救下藍嵐，保住了夥伴性命。然而魏天縱醫生獨自切除根結，靈魂永遠留在了歲神舊宅……";
+                if (!unlocked.includes('branch')) unlocked.push('branch');
+            } else {
+                title = "☠️ Bad End：《歲神傀儡》";
+                desc = "理智崩潰煞氣侵蝕，小隊全員淪為戴木面具的竹篾紙人……";
+                if (!unlocked.includes('bad')) unlocked.push('bad');
+            }
+
+            localStorage.setItem('sui_shen_unlocked_endings', JSON.stringify(unlocked));
+
+            document.getElementById('gamePage').style.display = 'none';
+            document.getElementById('endingPage').style.display = 'flex';
+            document.getElementById('endingTitle').textContent = title;
+            document.getElementById('endingDesc').innerHTML = desc;
+            sfx.chime();
+        }
+
+        function startGame(type = 'ch1') {
+            currentChapterType = type;
+            state.playerName = "林恩";
+            document.getElementById('homePage').style.display = 'none';
+            document.getElementById('gamePage').style.display = 'flex';
+
+            /* 解鎖基礎角色檔案與狀態重置 */
+            unlockProfile('lynn');
+            if (['ch1'].includes(type)) {
+                unlockProfile('suche'); unlockProfile('lanlan'); unlockProfile('peter'); unlockProfile('luoan'); unlockProfile('like');
+                state.isPossessed = false;
+                document.getElementById('namePeterLabel').textContent = "裴得少爺";
+                document.getElementById('avatarPeter').style.backgroundImage = "url('https://file.garden/aWe99vhwaGcNwkok/%E7%A0%B4%E9%A0%AD/%E5%BD%BC%E5%BE%97.png')";
+            }
+            if (['ch2'].includes(type)) {
+                unlockProfile('hecui');
+                state.isPossessed = false;
+                document.getElementById('namePeterLabel').textContent = "裴得少爺";
+                document.getElementById('avatarPeter').style.backgroundImage = "url('https://file.garden/aWe99vhwaGcNwkok/%E7%A0%B4%E9%A0%AD/%E5%BD%BC%E5%BE%97.png')";
+            }
+            if (['ch1','ch2','ch3','ch4','ch5','ch6','ch7','ch8','ch9','ch10','ch11','ch12','epilogue'].includes(type)) {
+                possessPeterByWeiTianzong(); unlockProfile('jornona'); unlockProfile('melas');
+            }
+
+            state.isPossessed = false;
+            document.getElementById('namePeterLabel').textContent = "裴得";
+            /* reset avatar */ document.getElementById('avatarPeter').style.backgroundImage = "url('https://file.garden/aWe99vhwaGcNwkok/%E7%A0%B4%E9%A0%AD/%E5%BD%BC%E5%BE%97.png')";
+
+            if (type === 'ch1') { state.sanity = 95; state.curse = 10; dialogueQueue = [...chapter1Script]; }
+            else if (type === 'ch2') { state.sanity = 85; state.curse = 20; dialogueQueue = [...chapter2Script]; }
+            else if (type === 'ch3') { state.sanity = 75; state.curse = 35; dialogueQueue = [...chapter3Script]; possessPeterByWeiTianzong(); }
+            else if (type === 'ch4') { state.sanity = 65; state.curse = 45; dialogueQueue = [...chapter4Script]; possessPeterByWeiTianzong(); }
+            else if (type === 'ch5') { state.sanity = 60; state.curse = 55; dialogueQueue = [...chapter5Script]; possessPeterByWeiTianzong(); }
+            else if (type === 'ch6') { state.sanity = 55; state.curse = 65; dialogueQueue = [...chapter6Script]; possessPeterByWeiTianzong(); }
+            else if (type === 'ch7') { state.sanity = 50; state.curse = 75; dialogueQueue = [...chapter7Script]; possessPeterByWeiTianzong(); }
+            else if (type === 'ch8') { state.sanity = 45; state.curse = 85; dialogueQueue = [...chapter8Script]; possessPeterByWeiTianzong(); }
+            else if (type === 'ch9') { state.sanity = 40; state.curse = 90; dialogueQueue = [...chapter9Script]; possessPeterByWeiTianzong(); }
+            else if (type === 'ch10') { state.sanity = 30; state.curse = 95; dialogueQueue = [...chapter10Script]; possessPeterByWeiTianzong(); }
+            else if (type === 'ch11') { state.sanity = 20; state.curse = 100; dialogueQueue = [...chapter11Script]; possessPeterByWeiTianzong(); }
+            else if (type === 'ch12') { state.sanity = 50; state.curse = 0; dialogueQueue = [...chapter12Script]; possessPeterByWeiTianzong(); }
+            else { state.sanity = 100; state.curse = 0; dialogueQueue = [...epilogueScript]; }
+
+            document.getElementById('cardPeter').style.display = (type === 'ch1') ? 'none' : 'flex';
+            document.getElementById('cardLanlan').style.display = (type === 'ch1') ? 'none' : 'flex';
+            document.getElementById('cardJornona').style.display = (['ch1', 'ch2'].includes(type)) ? 'none' : 'flex';
+
+            updateUI();
+            sfx.chime();
+            processNextDialogue();
+        }
+
+        document.getElementById('startNewGameBtn').addEventListener('click', () => startGame('ch1'));
+
+        function openModal(id) {
+            document.getElementById(id).style.display = 'flex';
+            if (id === 'inventoryModal') renderInventory();
+            if (id === 'galleryModal') renderGallery();
+            if (id === 'profileModal') renderProfiles();
+        }
+        function closeModal(id) { document.getElementById(id).style.display = 'none'; }
+
+        function renderInventory() {
+            const grid = document.getElementById('inventoryGrid');
+            grid.innerHTML = '';
+            state.inventory.forEach(item => {
+                const card = document.createElement('div');
+                card.className = 'item-card';
+                card.innerHTML = `<div class="item-icon">${item.icon}</div><div class="item-name">${item.name}</div>`;
+                grid.appendChild(card);
+            });
+        }
+
+        function renderGallery() {
+            const list = document.getElementById('galleryList');
+            const unlocked = JSON.parse(localStorage.getItem('sui_shen_unlocked_endings') || "[]");
+
+            list.innerHTML = `
+                <div style="padding: 10px; border: 1px solid ${unlocked.includes('true') ? 'var(--accent-gold)' : '#444'}; background: ${unlocked.includes('true') ? 'rgba(212,175,55,0.15)' : 'rgba(255,255,255,0.02)'};">
+                    <b style="color: ${unlocked.includes('true') ? 'var(--accent-gold)' : '#777'};">🏆 完美大團圓結局：《破戲解咒 · 超生大團圓》 ${unlocked.includes('true') ? '【已解鎖】' : '【未解鎖】'}</b>
+                    <p style="font-size: 0.85rem; color: #aaa; margin-top: 4px;">魏天縱醫生切斷肉身佛主動脈，李客化光超生，何翠複原，全隊平安歸來結帳！</p>
+                </div>
+                <div style="padding: 10px; border: 1px solid ${unlocked.includes('branch') ? 'var(--accent-crimson)' : '#444'}; background: ${unlocked.includes('branch') ? 'rgba(231,76,60,0.15)' : 'rgba(255,255,255,0.02)'};">
+                    <b style="color: ${unlocked.includes('branch') ? 'var(--accent-crimson)' : '#777'};">🩸 分支結局：《血色殘戲》 ${unlocked.includes('branch') ? '【已解鎖】' : '【未解鎖】'}</b>
+                    <p style="font-size: 0.85rem; color: #aaa; margin-top: 4px;">林恩救下藍嵐，魏天縱醫生獨自切除根結，靈魂留守古宅。</p>
+                </div>
+                <div style="padding: 10px; border: 1px solid ${unlocked.includes('bad') ? 'var(--accent-purple)' : '#444'}; background: ${unlocked.includes('bad') ? 'rgba(142,68,173,0.15)' : 'rgba(255,255,255,0.02)'};">
+                    <b style="color: ${unlocked.includes('bad') ? 'var(--accent-purple)' : '#777'};">☠️ Bad End：《歲神傀儡》 ${unlocked.includes('bad') ? '【已解鎖】' : '【未解鎖】'}</b>
+                    <p style="font-size: 0.85rem; color: #aaa; margin-top: 4px;">理智崩潰煞氣侵蝕，小隊全員淪為戴木面具的竹篾紙人。</p>
+                </div>
+            `;
+        }
+
+        document.getElementById('galleryBtn').addEventListener('click', () => openModal('galleryModal'));
+        document.getElementById('titleGalleryBtn').addEventListener('click', () => openModal('galleryModal'));
+
+        function saveGame() {
+            const saveData = {
+                timestamp: new Date().toLocaleString(),
+                state: state,
+                currentChapter: currentChapterType || 'ch1'
+            };
+            localStorage.setItem('sui_shen_save_data', JSON.stringify(saveData));
+            sfx.chime();
+            alert(`💾 遊戲紀錄已成功存檔！\n存檔時間：${saveData.timestamp}`);
+        }
+
+        function loadGame() {
+            const raw = localStorage.getItem('sui_shen_save_data');
+            if (!raw) {
+                alert('⚠️ 尚無存檔紀錄！請先開始新遊戲或進入章節並存檔。');
+                return;
+            }
+            try {
+                const saveData = JSON.parse(raw);
+                state = saveData.state;
+                updateUI();
+                startGame(saveData.currentChapter || 'ch1');
+                sfx.chime();
+                alert(`💾 成功讀取紀錄！\n存檔時間：${saveData.timestamp}`);
+            } catch (e) {
+                alert('⚠️ 讀取存檔失敗，檔案可能已毀損。');
+                startGame('home');
+            }
+        };
+
+        function toggleStatusPanel() {
+            const panel = document.getElementById('statusPanel');
+            panel.classList.toggle('collapsed');
+            sfx.click();
+        }
+
+        function resizeGame() {
+            const container = document.querySelector('.container');
+            const targetWidth = 1200;
+            const targetHeight = 800;
+            const scaleX = window.innerWidth / targetWidth;
+            const scaleY = window.innerHeight / targetHeight;
+            const scale = Math.min(scaleX, scaleY);
+            if (window.innerWidth > 800) {
+                container.style.transform = `scale(${scale})`;
+            } else {
+                container.style.transform = 'none';
+            }
+        }
+        window.addEventListener('resize', resizeGame);
+        resizeGame();
+    </script>
+</body>
+
+</html>
